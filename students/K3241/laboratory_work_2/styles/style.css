@@ -1,0 +1,26 @@
+.index a {
+    font: 25px Verdana;
+}
+
+.arc path {
+    stroke: #000;
+}
+
+svg {
+    display: block;
+    margin: auto;
+}
+
+.container a {
+    margin: auto;
+    max-width: 1128px;
+}
+
+html, body, a {
+    background-color: #fff;
+    color: #636b6f;
+    font-family: 'Nunito', sans-serif !important;
+    font-weight: 200;
+    height: 100vh;
+    margin: 0;
+}
