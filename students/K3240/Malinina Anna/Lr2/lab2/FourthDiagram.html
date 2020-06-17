@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – samples (Steam games statistics)</h1>
+    <h2>Диаграмма</h2>
+    <ul>
+        <li><a href="FirstDiagram.html">First</a></li>
+        <li><a href="SecondDiagram.html">Second</a></li>
+        <li><a href="ThirdDiagram.html">Third</a></li>
+        <li>Fourth</li>
+        <li><a href="FifthDiagram.html">Fifth</a></li>
+    </ul>
+    <p>Диграмма показывает количество игр по годам</p>
+    <script type="text/javascript">
+        const parseDate = d3.time.format("%Y").parse;
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const xNudge = 50, yNudge = 20;
+        let max = 0;
+        let minDate = new Date(), maxDate = new Date();
+        let preTotal = 0;
+
+        d3.csv("../data/steam-4.csv")
+            .row(function (d) {
+                return {
+                    day: parseDate(d.date),
+                    price: preTotal += Number(d.count),
+                };
+            })
+            .get(function (error, rows) {
+                console.log(rows);
+
+                max = d3.max(rows, function (d) {
+                    return d.price;
+                });
+                minDate = d3.min(rows, function (d) {
+                    return d.day;
+                });
+                maxDate = d3.max(rows, function (d) {
+                    return d.day;
+                });
+
+                const y = d3.scale.linear().domain([0, max]).range([height, 0]);
+                const x = d3.time.scale().domain([minDate, maxDate]).range([0, width]);
+
+                const yAxis = d3.svg.axis().orient("left").scale(y);
+                const xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format("%Y"));
+
+                let line = d3.svg.line().x(function (d) {
+                    return x(d.day);
+                }).y(function (d) {
+                    return y(d.price);
+                }).interpolate("cardinal");
+
+                const svg = d3.select("div").append("div").attr("class", "svg-containter").attr("id", "main").append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+                let chartGroup = svg.append("g").attr("class", "chartGroup").attr("transform", "translate(" + xNudge + "," + yNudge + ")");
+
+                chartGroup.append("path").attr("class", "line").attr("d", function (d) {
+                    return line(rows);
+                });
+                chartGroup.append("g").attr("class", "axis x").attr("transform", "translate(0," + height + ")").call(xAxis).selectAll("text")
+                    .style("text-anchor", "end")
+                    .attr("dx", "-.8em")
+                    .attr("dy", ".15em")
+                    .attr("transform", function(d) {
+                        return "rotate(-65)"
+                    });
+                chartGroup.append("g").attr("class", "axis y").call(yAxis);
+            });
+
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="containter" id="main">
+    <h1>D3.js – samples (Steam games statistics)</h1>
+    <h2>Диаграмма</h2>
+    <ul>
+        <li><a href="FirstDiagram.html">First</a></li>
+        <li><a href="SecondDiagram.html">Second</a></li>
+        <li><a href="ThirdDiagram.html">Third</a></li>
+        <li><a href="FourthDiagram.html">Fourth</a></li>
+        <li>Fifth</li>
+    </ul>
+    <p>Диграмма показывает ТОП-30 разработчиков по количеству выпущенных игр</p>
+    <script>
+        // set the dimensions and margins of the graph
+        var margin = {top: 20, right: 30, bottom: 40, left: 190},
+            width = 860 - margin.left - margin.right,
+            height = 800 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        var svg = d3.select("div")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("../data/steam-5.csv", function (data) {
+
+            // Add X axis
+            var x = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, width]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-45)")
+                .style("text-anchor", "end");
+
+            // Y axis
+            var y = d3.scaleBand()
+                .range([0, height])
+                .domain(data.map(function (d) {
+                    return d.Developer;
+                }))
+                .padding(.1);
+            svg.append("g")
+                .call(d3.axisLeft(y))
+
+            //Bars
+            svg.selectAll("myRect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", function (d) {
+                    return y(d.Developer);
+                })
+                .attr("width", function (d) {
+                    return x(d.Count);
+                })
+                .attr("height", y.bandwidth())
+                .attr("fill", "#69b3a2")
+        })
+    </script>
+</div>
+</body>
+
+</html>
