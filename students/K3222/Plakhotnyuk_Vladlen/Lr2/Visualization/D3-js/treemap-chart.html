@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>KickStarter Projects</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>Проекты с площадки KickStarter</h1>
+
+    <ul>
+        <li><a href="dendrogram.html">Dendrogram</a></li>
+        <li><a href="bar-chart.html">Bar chart</a></li>
+        <li>Treemap chart</li>
+        <li><a href="lolipop-chart.html">Lolipop chart</a></li>
+        <li><a href="pie-chart.html">Pie chart</a></li>
+    </ul>
+    <h2>Диаграмма</h2>
+    <p>Показывает общее количество проектов в каждой категории:</p>
+
+
+    <script>
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 10, right: 10, bottom: 10, left: 10},
+            width = 800 - margin.left - margin.right,
+            height = 445 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("p")
+            .append("div").attr("class", "svg-containter")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+        // Read data
+        d3.csv("data/main_categories.csv", function(data) {
+
+            // stratify the data: reformatting for d3.js
+            var root = d3.stratify()
+                .id(function(d) { return d.name; })   // Name of the entity (column name is name in csv)
+                .parentId(function(d) { return d.parent; })   // Name of the parent (column name is parent in csv)
+                (data);
+            root.sum(function(d) { return +d.value })   // Compute the numeric value for each entity
+
+            // Then d3.treemap computes the position of each element of the hierarchy
+            // The coordinates are added to the root object above
+            d3.treemap()
+                .size([width, height])
+                .padding(6)
+                (root)
+
+            console.log(root.leaves())
+            // use this information to add rectangles:
+            svg
+                .selectAll("rect")
+                .data(root.leaves())
+                .enter()
+                .append("rect")
+                .attr('x', function (d) { return d.x0; })
+                .attr('y', function (d) { return d.y0; })
+                .attr('width', function (d) { return d.x1 - d.x0; })
+                .attr('height', function (d) { return d.y1 - d.y0; })
+                .style("stroke", "black")
+                .style("fill", "#69b3a2");
+
+            // and to add the text labels
+            svg
+                .selectAll("text")
+                .data(root.leaves())
+                .enter()
+                .append("text")
+                .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+                .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
+                .text(function(d){ return d.data.name})
+                .attr("font-size", "12px")
+                .attr("fill", "white")
+
+            // and to add the text labels
+            svg
+                .selectAll("vals")
+                .data(root.leaves())
+                .enter()
+                .append("text")
+                .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+                .attr("y", function(d){ return d.y0+40})    // +20 to adjust position (lower)
+                .text(function(d){ return d.data.value})
+                .attr("font-size", "12px")
+                .attr("fill", "white")
+        })
+    </script>
+</div>
+</body>
+</html>
