@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – Adult Census Income</h1>
+
+    <ul>
+        <li><a href="diagram1.html">Диаграмма 1</a></li>
+        <li><a href="diagram2.html">Диаграмма 2</a></li>
+        <li><a href="diagram3.html">Диаграмма 3</a></li>
+        <li><a href="diagram4.html">Диаграмма 4</a></li>
+        <li><a href="diagram5.html">Диаграмма 5</a></li>
+        <li>Диаграмма 6</li>
+        <li><a href="diagram7.html">Диаграмма 7</a></li>
+        <li><a href="diagram8.html">Диаграмма 8</a></li>
+    </ul>
+
+    <p>
+        Эти данные были взяты из базы данных Бюро переписи 1994 года Ронни Кохави и
+        Барри Беккером (Data Mining and Visualization, Silicon Graphics). <br>
+        Диаграмма показывает сколько мужчин получают менее 50К в год в зависимости от образования.
+
+    </p>
+
+    <h2>Диаграмма 6</h2>
+
+    <script type="text/javascript">
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const svg = d3.select("h2")
+            .append("div").attr("class", "svg-containter")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+
+        d3.csv("data/ad_m_ed.csv", function (error, data) {
+
+            /**
+             * Преобразуем датасет в склееный массив
+             */
+            const dataset = d3.layout.stack()(["less_50K"].map(function (adultCase) {
+                return data.map(function (d) {
+                    return {x: d.Education_lvl, y: +d[adultCase]};
+                });
+            }));
+
+            /**
+             * Строим бар-чарт
+             */
+            const x = d3.scale.ordinal()
+                .domain(dataset[0].map(function (d) {
+                    return d.x;
+                }))
+                .rangeRoundBands([30, width - 10], 0.5);
+
+            const y = d3.scale.linear()
+                .domain([0, d3.max(dataset, function (d) {
+                    return d3.max(d, function (d) {
+                        return d.y0 + d.y + 12;
+                    });
+                })])
+                .range([height, 0]);
+
+            const colors = ["rgba(46,89,245,0.76)"];
+
+            const yAxis = d3.svg.axis().scale(y).orient("left").ticks(10).tickSize(-width, 0, 0).tickFormat(function (d) {
+                return d
+            });
+
+            const xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(function (d) {
+                return d
+            });
+
+            svg.append("g").attr("class", "y axis").attr("transform", "translate(" + 30 + ",0)").call(yAxis);
+
+            svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+
+            const groups = svg.selectAll("g.cost").data(dataset).enter().append("g").attr("class", "cost").style("fill", function (d, i) {
+                return colors[i];
+            });
+            const rect = groups.selectAll("rect").data(function (d) {
+                return d;
+            }).enter().append("rect").attr("x", function (d) {
+                return x(d.x);
+            }).attr("y", function (d) {
+                return y(d.y0 + d.y);
+            }).attr("height", function (d) {
+                return y(d.y0) - y(d.y0 + d.y);
+            }).attr("width", x.rangeBand()).on("mouseover", function () {
+                tooltip.style("display", null);
+            }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 25;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.y);
+            });
+
+            const legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function (d, i) {
+                    return "translate(30," + i * 19 + ")";
+                });
+
+            legend
+                .append("rect")
+                .attr("x", width - 18)
+                .attr("y", height - 430)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", function (d, i) {
+                    return colors.slice().reverse()[i];
+                });
+
+            legend
+                .append("text")
+                .attr("x", width + 6)
+                .attr("y", 26)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function (d, i) {
+                    switch (i) {
+                        case 0:
+                            return "amount of people";
+                    }
+                });
+
+            const tooltip = svg.append("g").attr("class", "my-tooltip").style("display", "none");
+            tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+            tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "12px").attr("font-weight", "bold");
+        });
+    </script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Анализ данных</title>
+    <title>Статистика</title>
+    <style type="text/css">
+
+        body{
+            margin-left: 20%;
+            margin-right: 20%;
+        }
+        .chart {
+            font-family: Roboto,sans-serif;
+            color: #181818;
+            font-size: 14px;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<h1>Анализ данных. Дата-сторителлинг</h1>
+<p> На дисциплине "Моделирование и визуализация данных" было предложено найти набор данных, провести их анадиз,
+    выдвинуть и проверить несколько гипотез. На сайте <a href="https://www.kaggle.com/">kaggle.com</a> я
+    нашла датасет <a href="https://www.kaggle.com/uciml/adult-census-income">Adult Census Income</a>, целью которого является
+    определение факторов, влияющих на годовой доход. Тем не менее, анализируя этот датасет6 можно проверить несколько
+    гипотез:<br>
+    - Женщины живут дольше мужчин (максимальный и средний возраст) не зависимо от расы;<br>
+    - Самая популярная профессия у мужчин "Craft-repair", у женщин - "Sales";<br>
+    - Уровень годового дохода у мужчин выше, чем у женщин, зависит от расы, зависит от образования (чем выше степень,
+    тем больше вероятность получать больше 50К в год)<br>
+</p>
+
+<h2>Гипотеза 1. Женщины живут дольше мужчин (максимальный и средний возраст) не зависимо от расы.</h2>
+<!--1-->
+</br>
+<iframe title="Средний и максимальный возраст у мужчин и женщин" aria-label="Grouped Bars"
+        id="datawrapper-chart-TL0nC" src="https://datawrapper.dwcdn.net/TL0nC/1/" scrolling="no" frameborder="0"
+        style="border: none;" width="800" height="245"></iframe>
+
+<p> Как мы видим, максимальный возраст одинаков, а средний возраст больше у мужчин.</p>
+
+<!--2-->
+</br>
+<iframe title="Средний и максимальный возраст у мужчин в зависимости от расы" aria-label="Bullet Bars"
+        id="datawrapper-chart-YDZbn" src="https://datawrapper.dwcdn.net/YDZbn/2/" scrolling="no" frameborder="0"
+        style="border: none;" width="800" height="291"></iframe>
+
+<!--3-->
+</br>
+<iframe title="Средний и максимальный возраст у женщин в зависимости от расы" aria-label="Bullet Bars"
+        id="datawrapper-chart-5O5C7" src="https://datawrapper.dwcdn.net/5O5C7/1/" scrolling="no" frameborder="0"
+        style="border: none;" width="800" height="291"></iframe>
+
+<p> По графикам видно, что больше женщин разных рас доживают до 90 лет, но средний возраст у мужчин выше, чем у женщин.</p>
+
+<h2>Гипотеза 2. Самая популярная профессия у мужчин "Craft-repair", у женщин - "Sales".</h2>
+<!--4-->
+</br>
+<iframe title="Популярность профессий у мужчин" aria-label="Bar Chart" id="datawrapper-chart-V9y8B"
+        src="https://datawrapper.dwcdn.net/V9y8B/1/" scrolling="no" frameborder="0" style="border: none;"
+        width="800" height="509"></iframe>
+
+<!--5-->
+</br>
+<iframe title="Популярность профессий у женщин" aria-label="Bar Chart" id="datawrapper-chart-0Q38J"
+        src="https://datawrapper.dwcdn.net/0Q38J/1/" scrolling="no" frameborder="0" style="border: none;"
+        width="800" height="478"></iframe>
+
+<p> Очевидно, что самая популярная профессия у мужчин - "Craft-repair", а у женщин "Adm-clerical".</p>
+
+<h2> Гипотеза 3. Уровень годового дохода у мужчин выше, чем у женщин, зависит от расы, зависит от образования
+    (чем выше степень, тем больше вероятность получать больше 50К в год).</h2>
+
+<!--6-->
+</br>
+<iframe title="Уровень годового дохода у женщин и мужчин" aria-label="chart" id="datawrapper-chart-HBG6B"
+        src="https://datawrapper.dwcdn.net/HBG6B/1/" scrolling="no" frameborder="0" style="border: none;"
+        width="800" height="290"></iframe>
+
+<p> В процентном соотношении видно, что уровень годового дохода у мужчин выше, чем у женщин.</p>
+
+<!--7-->
+</br>
+<iframe title="Уровень годового дохода у мужчин в зависимости от расы" aria-label="Split Bars"
+        id="datawrapper-chart-MXs2N" src="https://datawrapper.dwcdn.net/MXs2N/1/" scrolling="no" frameborder="0"
+        style="border: none;" width="800" height="285"></iframe>
+
+<!--8-->
+</br>
+<iframe title="Уровень годового дохода у женщин в зависимости от расы" aria-label="Split Bars"
+        id="datawrapper-chart-Apvst" src="https://datawrapper.dwcdn.net/Apvst/2/" scrolling="no"
+        frameborder="0" style="border: none;" width="800" height="285"></iframe>
+
+<p> Как мы видим, действительно, люди рас "White" и "Asian-Pac-Islander" чаще зарабатывают больше 50К в год,
+    при чем не зависимо от пола.</p>
+
+<!--9-->
+</br>
+<iframe title="Уровень дохода в зависимости от полученного образования у мужчин" aria-label="Split Bars"
+        id="datawrapper-chart-NqpOe" src="https://datawrapper.dwcdn.net/NqpOe/2/" scrolling="no" frameborder="0"
+        style="border: none;" width="800" height="626"></iframe>
+
+<!--10-->
+</br>
+<iframe title="Уровень дохода в зависимости от полученного образования у женщин" aria-label="Split Bars"
+        id="datawrapper-chart-ARULL" src="https://datawrapper.dwcdn.net/ARULL/1/" scrolling="no" frameborder="0"
+        style="border: none;" width="600" height="626"></iframe>
+
+<p> По графикам можно сказать, что не всегда высокая степень образования гарантирует более высокий годовой доход,
+однако и у мужчин и у менщин со степенью "Doctorate" больше людей получают доход более 50К в год.</p>
+
+<h2>Вывод</h2>
+<p> Не все гипотезы подтвердились полностью, но некоторые из них оказались частично верными.</p>
+
+</body>
+</html>
