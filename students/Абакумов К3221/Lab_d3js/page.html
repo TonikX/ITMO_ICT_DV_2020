@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Визуализация данных</title>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style type="text/css">
+        .svg-container {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+        body {
+            font: 13px Verdana;
+        }
+        .arc path {
+            stroke: #000;
+        }
+        rect {
+            fill: teal;
+        }
+        .axis path, .axis line {
+            fill: none;
+            stroke: #333;
+        }
+        .axis .grid-line {
+            stroke: #000;
+            stroke-opacity: 0.2;
+        }
+        .axis text {
+            font: 10px Verdana;
+        }
+        .bar {
+            stroke: none;
+            fill: #4682B4;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    const dataSource = 'data/bmw_pricing_challenge.csv'
+
+    const margin1 = {top: 20, right: 50, bottom: 100, left: 50};
+
+    const width1 = 1400 - margin1.left - margin1.right;
+    const height1 = 700 - margin1.top - margin1.bottom;
+
+    const svg1 = d3.select("body").append("svg")
+        .attr("class", "axis2")
+        .attr("height", height1 + margin1.top + margin1.bottom)
+        .attr("width", width1 + margin1.left + margin1.right)
+      .append('g')
+        .attr('transform', 'translate(' + margin1.left + ',' + margin1.top + ')')
+
+
+    d3.csv(dataSource, function(d) {
+        d.price = Number(d.price)
+        d.engine_power = Number(d.engine_power)
+        d.mileage = Number(d.mileage)
+        return d;
+
+    }, function(d) {
+        var x = d3.scale.linear()
+            .domain([0, d3.max(d, function (d) { return 0.9 * d.price })])
+            .range([0, width1])
+
+        var y = d3.scale.linear()
+            .domain([0, d3.max(d, function (d) { return d.engine_power })])
+            .range([height1, 0])
+
+        var r = d3.scale.linear()
+            .domain([0, Math.sqrt(d3.max(d, function (d) { return d.mileage }))])
+            .range([0, 8])
+
+        svg1.selectAll('circle')
+            .data(d)
+            .enter()
+            .append('circle')
+            .attr('cx', function (d) { return x(0.9 * d.price) + 4 })
+            .attr('cy', function (d) { return y(d.engine_power) })
+            .attr('r', function (d) { return r(Math.sqrt(d.mileage)) })
+            .attr('fill', function (d) { return d.paint_color })
+
+        svg1.append('g')
+            .attr("class", "axis")
+            .attr('transform', 'translate(0,' + height1 + ')')
+            .call(
+                d3.svg.axis()
+                    .scale(x)
+                    .orient('bottom')
+            )
+
+        svg1.append('g')
+            .attr("class", "axis")
+            .call(
+                d3.svg.axis()
+                    .scale(y)
+                    .orient('left')
+            )
+
+    });
+
+    const margin2 = {top: 50, right: 30, bottom: 30, left: 30};
+
+    const width2 = 1000 - margin2.left - margin2.right;
+    const height2 = 700 - margin2.top - margin2.bottom;
+
+    const svg2 = d3.select("body").append("svg")
+        .attr("class", "axis")
+        .attr("width", width2)
+        .attr("height", height2)
+        .append("g")
+        .attr("transform",
+            "translate(" + (width2 / 2) + "," + (height2 / 2) + ")");
+
+    d3.csv(dataSource, function (d) {
+        data = d3.nest()
+            .key(function (d) {
+                return d.car_type
+            })
+            .rollup(function (v) {
+                return v.length
+            })
+            .entries(d);
+
+        var count = 0;
+
+        for (var i = 0, l = data.length; i<l; i++) {
+            count += data[i].values;
+        }
+
+        var color = d3.scale.category10();
+
+        var radius = Math.min(width2, height2) / 2;
+
+        var arc = d3.svg.arc()
+            .outerRadius(radius)
+            .innerRadius(radius/2);
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function (d) {
+                return d.values;
+            });
+
+        var g = svg2.selectAll(".arc")
+            .data(pie(data))
+            .enter().append("g")
+            .attr("class", "arc");
+
+        g.append("path")
+            .attr("d", arc)
+            .style("fill", function (d) {
+                return color(d.data.key);
+            });
+
+        var legendTable = svg2.append("g")
+            .attr("transform", "translate(-500, -350)")
+            .attr("class", "legendTable");
+
+        var legend = legendTable.selectAll(".legend")
+            .data(pie(data))
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function (d, i) {
+                return "translate(0, " + i * 20 + ")";
+            });
+
+        legend.append("rect")
+            .attr("x", width2-10)
+            .attr("y", 4)
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", function(d) { return color(d.data.key); });
+
+        legend.append("text")
+            .attr("x", width2-14)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) { return d.data.key + ": " + d.data.values + " ( " + (100 * d.data.values  / count ).toFixed(2) + " % )"; });
+
+    });
+
+    const margin3 = {top: 30, right: 30, bottom: 30, left: 80}
+    const width3 = 900 - margin3.left - margin3.right
+    const height3 = 650 - margin3.top - margin3.bottom
+
+    const svg3 = d3.select("body").append("svg")
+        .attr("class", "axis")
+        .attr("width", width3)
+        .attr("height", height3);
+
+    d3.csv(dataSource, function (d) {
+        datas = d3.nest()
+            .key(function (d) {
+                return d.car_type;
+            })
+            .rollup(function (v) {
+                return d3.mean(v, function (d) {
+                    return d.price;
+                });
+            })
+            .entries(d);
+        var k = []
+
+        var v = []
+
+        for (var i = 0, l = datas.length; i < l; i++) {
+            k.push(datas[i].key)
+            v.push(Math.round(datas[i].values))
+        }
+
+        var data=[];
+
+        var xAxisLength = width3 - margin3.left - margin3.right;
+
+        var yAxisLength = height3 - margin3.bottom - margin3.top;
+        var maxy = Math.max.apply(null, v)
+
+        var scaleY = d3.scale.linear()
+            .domain([maxy, 0])
+            .range([0, yAxisLength]);
+
+        var scaleX = d3.scale.ordinal()
+            .rangeBands([ 0, xAxisLength ])
+            .domain(k);
+
+        for (i = 0; i < datas.length; i++)
+            data.push({x: (i+1), y: datas[i].values});
+
+        var xAxis = d3.svg.axis()
+            .scale(scaleX)
+            .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+            .scale(scaleY)
+            .orient("left")
+            .tickFormat(d3.format("d"));
+
+        svg3.append("g")
+            .attr("class", "x-axis")
+            .attr("transform",  // сдвиг оси вниз и вправо
+                "translate(" + margin3.left + "," + (height3 - margin3.top) + ")")
+            .call(xAxis);
+
+        svg3.append("g")
+            .attr("class", "y-axis")
+            .attr("transform", // сдвиг оси вниз и вправо на margin
+                "translate(" + margin3.left + "," + margin3.top + ")")
+            .call(yAxis);
+
+        d3.selectAll("g.y-axis g.tick")
+            .append("line")
+            .classed("grid-line", true)
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", xAxisLength)
+            .attr("y2", 0);
+
+        var g =svg3.append("g")
+            .attr("class", "body")
+            .attr("transform",
+                "translate(" + margin3.left + ", 0 )");
+
+        g.selectAll("rect.bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar");
+
+        g.selectAll("rect.bar")
+            .data(data)
+            .attr("x", function (d) {
+                return Math.round(d.x*xAxisLength/datas.length) - margin3.left;
+            })
+            .attr("y", function (d) {
+                return scaleY(d.y) + margin3.top;
+            })
+            .attr("height", function (d) {
+                return yAxisLength - scaleY(d.y);
+            })
+            .attr("width", Math.floor((xAxisLength / data.length)*0.8) - 2);
+    })
+
+    const margin4 = {top: 30, right: 30, bottom: 30, left: 100};
+    const width4 = 900 - margin4.left - margin4.right;
+    const height4 = 550 - margin4.top - margin4.bottom;
+
+    const svg4 = d3.select("body")
+        .append("svg")
+        .attr("class", "axis")
+        .attr("width", width4 + margin4.left + margin4.right)
+        .attr("height", height4 + margin4.top + margin4.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin4.left + "," + margin4.top + ")");
+
+
+    d3.csv(dataSource, function (d) {
+        nested = d3.nest()
+            .key(function (d) { return d.car_type})
+            .key(function (d) { return d.fuel; })
+            .rollup(function(d) { return d.length; })
+            .entries(d);
+
+        var n,
+            data = [],
+            n2 = [],
+            n1 = [];
+
+        set = new Set()
+
+        for (var i = 0, l1 = nested.length; i<l1; i++) {
+            n1.push(nested[i].key)
+            n = nested[i].values
+            for (var j = 0, l2 = n.length; j<l2; j++) {
+                set.add(n[j].key)
+            }
+        }
+        for(i of set){
+            n2.push(i)
+        }
+
+        for (var i = 0, l1 = nested.length; i<l1; i++) {
+            n = nested[i].values
+            var k = []
+            for (var j = 0, l2 = n.length; j<l2; j++) {
+                k.push(n[j].key)
+            }
+            for (var j = 0, l2 = n2.length; j<l2; j++){
+                if (k.indexOf(n2[j]) == -1) {
+                    var a = {"key" : n2[j], "values" : 0}
+                    nested[i].values.push(a)
+                }
+                a = {'n1' : nested[i].key, 'n2' : n2[j], 'values' : n[j].values}
+                data.push(a)
+            }
+        }
+
+        var x = d3.scale.ordinal()
+            .rangeBands([ 0, width4 ])
+            .domain(n1);
+
+        svg4.append("g")
+            .attr("transform", "translate(0," + height4 + ")")
+            .call(d3.svg.axis()
+                .scale(x)
+                .orient("bottom"))
+
+        var y = d3.scale.ordinal()
+            .rangeBands([ height4, 0 ])
+            .domain(n2);
+
+        svg4.append("g")
+            .call(d3.svg.axis()
+                .scale(y)
+                .orient("left"));
+
+        var myColor = d3.scale.linear()
+            .range(["white", "#c20606"])
+            .domain([1,23])
+
+        svg4.selectAll()
+            .data(data, function(d) {return d.n1+':'+d.n2;})
+            .enter()
+            .append("rect")
+            .attr("x", function(d) { return x(d.n1) })
+            .attr("y", function(d) { return y(d.n2) })
+            .attr("width", width4/n1.length )
+            .attr("height", height4/n2.length )
+            .style("fill", function(d) { return myColor(Math.round(d.values/25)+4)} )
+
+    })
+
+    const margin5 = {top: 30, right: 30, bottom: 30, left: 80};
+    const width5 = 900 - margin5.left - margin5.right;
+    const height5 = 600 - margin5.top - margin5.bottom;
+
+    const svg5 = d3.select("body").append("svg")
+        .attr("class", "axis")
+        .attr("width", width5)
+        .attr("height", height5);
+
+    d3.csv(dataSource, function (d) {
+        datas = d3.nest()
+            .key(function (d) {
+                return d.registration_date.slice(0, 4);
+            })
+            .rollup(function (v) {
+                return d3.mean(v, function (d) {
+                    return d.mileage;
+                });
+            })
+            .entries(d);
+        var k = []
+
+        var v = []
+
+        for (var i = 0, l = datas.length; i < l; i++) {
+            datas[i].key = Number.parseInt(datas[i].key)
+            k.push(datas[i].key)
+            v.push(Math.round(datas[i].values))
+        }
+
+        var data=[];
+
+        var xAxisLength = width5 - margin5.left - margin5.right;
+
+        var yAxisLength = height5 - margin5.bottom - margin5.top;
+        var minx = Math.min.apply(null, k)
+        var maxx = Math.max.apply(null, k)
+        var maxy = Math.max.apply(null, v)
+
+        var scaleX = d3.scale.linear()
+            .domain([minx, maxx])
+            .range([0, xAxisLength]);
+
+        var scaleY = d3.scale.linear()
+            .domain([maxy, 0])
+            .range([0, yAxisLength]);
+
+        for (i = 0; i < datas.length; i++)
+            data.push({x: scaleX(datas[i].key) + margin5.left, y: scaleY(datas[i].values) + margin5.top});
+
+        var xAxis = d3.svg.axis()
+            .scale(scaleX)
+            .orient("bottom")
+            .tickFormat(d3.format("d"));
+
+        var yAxis = d3.svg.axis()
+            .scale(scaleY)
+            .orient("left")
+            .tickFormat(d3.format("d"));
+
+        svg5.append("g")
+            .attr("class", "x-axis")
+            .attr("transform",
+                "translate(" + margin5.left + "," + (height5 - margin5.top) + ")")
+            .call(xAxis);
+
+        svg5.append("g")
+            .attr("class", "y-axis")
+            .attr("transform",
+                "translate(" + margin5.left + "," + margin5.top + ")")
+            .call(yAxis);
+
+        d3.selectAll("g.x-axis g.tick")
+            .append("line")
+            .classed("grid-line", true)
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 0)
+            .attr("y2", -(yAxisLength));
+
+        d3.selectAll("g.y-axis g.tick")
+            .append("line")
+            .classed("grid-line", true)
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", xAxisLength)
+            .attr("y2", 0);
+
+        var line = d3.svg.line()
+            .x(function (d) {
+                return d.x;
+            })
+            .y(function (d) {
+                return d.y;
+            });
+
+        svg5.append("g").append("path")
+            .attr("d", line(data))
+            .style("stroke", "steelblue")
+            .style("stroke-width", 2);
+    })
+    var name1 = document.createElement("h2")
+    name1.textContent = "Точечный график"
+    name1.align = 'center'
+    document.getElementsByTagName('svg')[0].before(name1)
+
+    var text1 = document.createElement("h3")
+    text1.textContent = "На данном графике мы видим зависимость цен " +
+        "автомобилей от мощностей их двигателей. Кроме того, размер точек " +
+        "отвечает за пробег автомобилей. Из концентрирования большей части " +
+        "точек прослеживается повышение цены автомобилей с повышением их мощности. " +
+        "Также заметно, что автомобили, имеющие бОльший пробег, имеют меньшую цену " +
+        "(концентрирование в левой части графика более крупных точек)."
+    text1.align = 'left'
+    document.getElementsByTagName('svg')[0].before(text1)
+
+    var name2 = document.createElement("h2")
+    name2.textContent = "Круговая диаграмма"
+    name2.align = 'center'
+    document.getElementsByTagName('svg')[1].before(name2)
+
+    var text2 = document.createElement("h3")
+    text2.textContent = "На круговой диаграмме мы видим процентное соотношение " +
+        "и количество проданных на аукционе автомобилей по типу кузова." +
+        "Так, больше всего было продано универсалов, а меньше всего - фургонов"
+    text2.align = 'left'
+    document.getElementsByTagName('svg')[1].before(text2)
+
+    var name3 = document.createElement("h2")
+    name3.textContent = "Гистограмма"
+    name3.align = 'center'
+    document.getElementsByTagName('svg')[2].before(name3)
+
+    var text3 = document.createElement("h3")
+    text3.textContent = "На данной гистограмме мы видим среднюю цену автомобилей, скомпанованных по" +
+        " типу кузова. Так, самыми дорогими автомобилями на рассматриваемом аукционе " +
+        "были купе (средняя цена на один такой автомобиле составляет чуть больше 22000 долларов), " +
+        "а самыми дешевыми - субкомпактные автомобили, B-класс на русский лад (средняя цена за один " +
+        "автомобиль почти около 9000-10000 долларов)."
+    text3.align = 'left'
+    document.getElementsByTagName('svg')[2].before(text3)
+
+    var name4 = document.createElement("h2")
+    name4.textContent = "Тепловая диаграмма"
+    name4.align = 'center'
+    document.getElementsByTagName('svg')[3].before(name4)
+
+    var text4 = document.createElement("h3")
+    text4.textContent = "На данной тепловой диаграмме мы видим плотность распределения проданных на " +
+        "аукционе автомобилей по типу топлива и типу кузова. Из данной диаграммы можно сделать вывод, " +
+        "что самое распространенное топливо у автомобилей BMW - это дизель(на втором месте - бензин), " +
+        "а также, больше всего автомобилей на аукционе были дизельные универсалы(на втором месте - дизельные " +
+        "седаны, а на третьем - тоже дизельные, но хэтчбеки)."
+    text4.align = 'left'
+    document.getElementsByTagName('svg')[3].before(text4)
+
+    var name5 = document.createElement("h2")
+    name5.textContent = "Линейный график"
+    name5.align = 'center'
+    document.getElementsByTagName('svg')[4].before(name5)
+
+    var text5 = document.createElement("h3")
+    text5.textContent = "На данном линейном графике мы видим изменение значения среднего пробега " +
+        "автомобиля в зависимости от года выпуска. Так, основная тенденция графика - низходящая, " +
+        "то есть чем новее автомобиль был на аукционе, тем меньше у него был пробег (на основе среднего " +
+        "значения для определенного года выпуска). Конечно, на данном графике и присутствует такое, что " +
+        "у автомобилей 1990 - 1995 года средний пробег меньше, чем средний пробег автомобилей 1996 года и младше " +
+        "(вплоть до автомобилей 2012 года), но этот факт можно объяснить тем, что эти старые автомобили " +
+        "скорее всего были выставлены на аукцион как ретро-автомобили. И, возможно, если бы у них был пробег больше, " +
+        "чем представленный на графике, то такие старые автомобили навряд ли сохранились бы до наших дней."
+    text5.align = 'left'
+    document.getElementsByTagName('svg')[4].before(text5)
+</script>
+
+</body>
+</html>
