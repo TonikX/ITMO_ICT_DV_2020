@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify 2000</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style type="text/css">
+        text {
+            font-family: arial,serif;
+            font-size: 12px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+
+        #nav p.section-title{
+            color: #7fc9b8;
+            text-align: center;
+            margin-top: 50px
+        }
+
+        #nav .nav-item .nav-link:hover {
+            color: #7fc9b8;
+            font-weight: bold;
+            background-color: transparent;
+            border-color: transparent;
+        }
+        #nav .nav-item, .nav-link {
+            color: #7fc9b8;
+            font-size: 20px;
+            border-bottom: 1px solid transparent;
+            border-top-left-radius: .25rem;
+            border-top-right-radius: .25rem;
+            margin-bottom: 25px;
+            margin-top: 25px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container-fluid" id="nav">
+    <p class="section-title h1">Spotify Top 2000</p>
+    <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link" href="chart1.html">Chart 1</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart2.html">Chart 2</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart3.html">Chart 3</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart4.html">Chart 4</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart5.html">Chart 5</a>
+        </li>
+    </ul>
+</div>
+
+<div class="containter">
+    <h3>Comparing music genres</h3>
+
+    <p>
+        Классическая столбиковая диаграмма показывает количество выпущенных треков по годам двух жанров и демонстрирует смену моды на музыкальные направления.
+    </p>
+
+    <div id="my_dataviz"></div>
+
+    <script type="text/javascript">
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const svg = d3.select("#my_dataviz")
+            .append("div").attr("class", "svg-containter")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+        const dateParse = d3.time.format("%Y").parse;
+
+        d3.csv("data/data1.csv", function (data) {
+            /**
+             * Преобразуем датасет в склееный массив
+             */
+            const dataset = d3.layout.stack()(["pop", "rock"].map(function(c) {
+                return data.map(function (d) {
+                    return {x: dateParse(d.year), y: +d[c]};
+                });
+            }));
+
+            /**
+             * Строим бар-чарт
+             */
+            const x = d3.scale.ordinal()
+                .domain(dataset[0].map(function (d) {
+                    return d.x;
+                }))
+                .rangeRoundBands([30, width - 10], 0.03);
+
+            const y = d3.scale.linear()
+                .domain([0, d3.max(dataset, function (d) {
+                    return d3.max(d, function (d) {
+                        return d.y0 + d.y;
+                    });
+                })])
+                .range([height, 0]);
+
+            const colors = ["#B86FD6", "#6EDBD0"];
+
+            const yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width, 0, 0).tickFormat(function (d) {
+                return d
+            });
+
+            const xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(7).tickFormat(d3.time.format("%Y"));
+
+            svg.append("g").attr("class", "y axis").attr("transform", "translate(" + 30 + ",0)").call(yAxis);
+
+            svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis).selectAll("text")
+                .attr("y", 0)
+                .attr("x", -40)
+                .attr("transform", "rotate(-90)")
+                .style("text-anchor", "start");
+
+            const groups = svg.selectAll("g.cost").data(dataset).enter().append("g").attr("class", "cost").style("fill", function (d, i) {
+                return colors[i];
+            });
+
+            const rect = groups.selectAll("rect").data(function (d) {
+                return d;
+            }).enter().append("rect").attr("x", function (d) {
+                return x(d.x);
+            }).attr("y", function (d) {
+                return y(d.y0 + d.y);
+            }).attr("height", function (d) {
+                return y(d.y0) - y(d.y0 + d.y);
+            }).attr("width", x.rangeBand()).on("mouseover", function () {
+                tooltip.style("display", null);
+            }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 25;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.y);
+            });
+
+            const legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function (d, i) {
+                    return "translate(30," + i * 19 + ")";
+                });
+
+            legend.append("rect").attr("x", width - 18).attr("width", 18).attr("height", 18).style("fill", function (d, i) {
+                return colors.slice().reverse()[i];
+            });
+
+            legend.append("text").attr("x", width + 5).attr("y", 9).attr("dy", ".35em").style("text-anchor", "start").text(function (d, i) {
+                switch (i) {
+                    case 0:
+                        return "pop music";
+                    case 1:
+                        return "rock music";
+                }
+            });
+
+            const tooltip = svg.append("g").attr("class", "my-tooltip").style("display", "none");
+            tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+            tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "12px").attr("font-weight", "bold");
+        });
+    </script>
+
+    <h3>Код</h3>
+
+    <pre><code>
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const svg = d3.select("h2")
+            .append("div").attr("class", "svg-containter")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+        const dateParse = d3.time.format("%Y").parse;
+
+        d3.csv("data/data1.csv", function (data) {
+            /**
+             * Преобразуем датасет в склееный массив
+             */
+            const dataset = d3.layout.stack()(["pop", "rock"].map(function(c) {
+                return data.map(function (d) {
+                    return {x: dateParse(d.year), y: +d[c]};
+                });
+            }));
+
+            /**
+             * Строим бар-чарт
+             */
+            const x = d3.scale.ordinal()
+                .domain(dataset[0].map(function (d) {
+                    return d.x;
+                }))
+                .rangeRoundBands([30, width - 10], 0.03);
+
+            const y = d3.scale.linear()
+                .domain([0, d3.max(dataset, function (d) {
+                    return d3.max(d, function (d) {
+                        return d.y0 + d.y;
+                    });
+                })])
+                .range([height, 0]);
+
+            const colors = ["#B86FD6", "#6EDBD0"];
+
+            const yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width, 0, 0).tickFormat(function (d) {
+                return d
+            });
+
+            const xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(d3.time.format("%Y"));
+
+            svg.append("g").attr("class", "y axis").attr("transform", "translate(" + 30 + ",0)").call(yAxis);
+
+            svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis).selectAll("text")
+                .attr("y", 0)
+                .attr("x", -40)
+                .attr("transform", "rotate(-90)")
+                .style("text-anchor", "start");
+
+            const groups = svg.selectAll("g.cost").data(dataset).enter().append("g").attr("class", "cost").style("fill", function (d, i) {
+                return colors[i];
+            });
+
+            const rect = groups.selectAll("rect").data(function (d) {
+                return d;
+            }).enter().append("rect").attr("x", function (d) {
+                return x(d.x);
+            }).attr("y", function (d) {
+                return y(d.y0 + d.y);
+            }).attr("height", function (d) {
+                return y(d.y0) - y(d.y0 + d.y);
+            }).attr("width", x.rangeBand()).on("mouseover", function () {
+                tooltip.style("display", null);
+            }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 25;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.y);
+            });
+
+            const legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function (d, i) {
+                    return "translate(30," + i * 19 + ")";
+                });
+
+            legend.append("rect").attr("x", width - 18).attr("width", 18).attr("height", 18).style("fill", function (d, i) {
+                return colors.slice().reverse()[i];
+            });
+
+            legend.append("text").attr("x", width + 5).attr("y", 9).attr("dy", ".35em").style("text-anchor", "start").text(function (d, i) {
+                switch (i) {
+                    case 0:
+                        return "pop music";
+                    case 1:
+                        return "rock music";
+                }
+            });
+
+            const tooltip = svg.append("g").attr("class", "my-tooltip").style("display", "none");
+            tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+            tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "12px").attr("font-weight", "bold");
+        });
+    </code></pre>
+</div>
+</body>
+</html>

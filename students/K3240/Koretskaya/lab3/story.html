@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Storytellling</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+        p.story {
+            font-size: 20px;
+        }
+        .container {
+            margin: auto;
+            max-width: 1400px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2> Spotify top 2000 </h2>
+    <hr>
+    <p class="story"> Выбранный набор данных содержит аудио статистику 2000 лучших треков на Spotify.
+        Данные содержат около 15 столбцов, каждый из которых описывает трек и его качества.
+        Включены композиции выпущенные с 1956 по 2019 от таких известных исполнителей,
+        как Queen , The Beatles , Guns'N Roses и т.д. </p>
+    <p class="story">Для начала приведем общую наглядную статистику по датасету</p>
+    <h4>Общая статистика</h4>
+    <iframe title="" aria-label="chart" id="datawrapper-chart-ClsP2" src="https://datawrapper.dwcdn.net/ClsP2/3/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="717"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+
+    <p class="story"> Рассмотрим ближе жанры, отобразим их в зависимости от года и популярности.
+        Можно увидеть огромное разнообразие жанров и некоторые ключевые,
+        на какой год приходится их пик популярности </p>
+    <h4>Распределение популярности жанров</h4>
+    <iframe title="" aria-label="chart" id="datawrapper-chart-p6I8U" src="https://datawrapper.dwcdn.net/p6I8U/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 80% !important; border: none;" height="400"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+
+    <h4>Самые часто встречающиеся жанры</h4>
+    <iframe title="" aria-label="chart" id="datawrapper-chart-n4y70" src="https://datawrapper.dwcdn.net/n4y70/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 70% !important; border: none;" height="373"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+
+    <p class="story"> Проследим как за годы изменились характеристики треков </p>
+    <h4>1960 - 2019</h4>
+    <iframe title="" aria-label="Range Plot" id="datawrapper-chart-xLnp1" src="https://datawrapper.dwcdn.net/xLnp1/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="158"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+    <hr>
+    <p class="story"> Возьмем певицу Adele и на ее примере продемострируем датасет. Отобразим характеристики ее треков и рост популярности.
+    С переменным успехом к 2016 году она достигла былой популярности.
+        Ее треки можно охарактеризовать как спокойные, негромкие и средне энергичные</p>
+    <h4>Популярность за десятилетие</h4>
+    <iframe title="" aria-label="Interactive area chart" id="datawrapper-chart-s7EBc" src="https://datawrapper.dwcdn.net/s7EBc/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 70% !important; border: none;" height="350"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+    <h4>Характеристика треков</h4>
+    <iframe title="" aria-label="Dot Plot" id="datawrapper-chart-DLJVG" src="https://datawrapper.dwcdn.net/DLJVG/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 70% !important; border: none;" height="300"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+    <p class="story"> Диаграмма ниже показывает, какие треки певицы набрали большую популярность.
+        Видно, что они выходили не часто, но набирали неплохую популярность </p>
+    <h4>Популярные треки</h4>
+    <iframe title="" aria-label="chart" id="datawrapper-chart-UzosP" src="https://datawrapper.dwcdn.net/UzosP/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="400"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+
+    <p class="story"> Таким образом, датасет наглядно демонстрирует деятельность отдельных исполнителей,
+        можно составить характеристику их треков, отследить популярность в масштабах одного артиста или десятилетия </p>
+    <h4></h4>
+</div>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify 2000</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <style>
+
+        #nav p.section-title{
+            color: #7fc9b8;
+            text-align: center;
+            margin-top: 50px
+        }
+
+        #nav .nav-item .nav-link:hover {
+            color: #7fc9b8;
+            font-weight: bold;
+            background-color: transparent;
+            border-color: transparent;
+        }
+        #nav .nav-item, .nav-link {
+            color: #7fc9b8;
+            font-size: 20px;
+            border-bottom: 1px solid transparent;
+            border-top-left-radius: .25rem;
+            border-top-right-radius: .25rem;
+            margin-bottom: 25px;
+            margin-top: 25px;
+        }
+        .bubbles {
+            stroke-width: 2px;
+            stroke: darkviolet;
+            fill: #E4C1E6;
+        }
+        .bubbles:hover {
+            stroke: #2EECE5;
+        }
+    </style>
+
+</head>
+<body>
+<div class="container-fluid" id="nav">
+    <p class="section-title h1">Spotify Top 2000</p>
+    <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link" href="chart1.html">Chart 1</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart2.html">Chart 2</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart3.html">Chart 3</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart4.html">Chart 4</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart5.html">Chart 5</a>
+        </li>
+    </ul>
+</div>
+<div class="container">
+    <h3>Top artists</h3>
+    <p>Пузырьковая диграмма показывает распределение артистов с самыми популярными треками</p>
+    <div id="my_dataviz"></div>
+
+    <script>
+
+        var margin = {top: 10, right: 20, bottom: 30, left: 50},
+            width = 500 - margin.left - margin.right,
+            height = 420 - margin.top - margin.bottom;
+
+        var svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv("data/data3.csv", function(data) {
+
+            var x = d3.scaleLinear()
+                .domain([1980, 2025])
+                .range([ 0, width ]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            var y = d3.scaleLinear()
+                .domain([140, 300])
+                .range([ height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            var z = d3.scaleLinear()
+                .domain([0, 1000])
+                .range([ 5, 10]);
+
+           var tooltip = d3.select("#my_dataviz")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "#CB6DE1")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+                .style("color", "white")
+
+            var showTooltip = function(d) {
+                tooltip
+                    .transition()
+                    .duration(200)
+                tooltip
+                    .style("opacity", 1)
+                    .html("Artist: " + d.artist)
+                    .style("left", (d3.mouse(this)[0]+50) + "px")
+                    .style("top", (d3.mouse(this)[1]+50) + "px")
+            }
+            var moveTooltip = function(d) {
+                tooltip
+                    .style("left", (d3.mouse(this)[0]+50) + "px")
+                    .style("top", (d3.mouse(this)[1]+50) + "px")
+            }
+            var hideTooltip = function(d) {
+                tooltip
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 0)
+            }
+
+            svg.append('g')
+                .selectAll("dot")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("class", "bubbles")
+                .attr("cx", function (d) { return x(d.years); } )
+                .attr("cy", function (d) { return y(d.length); } )
+                .attr("r", function (d) { return z(d.popularity); } )
+                .on("mouseover", showTooltip )
+                .on("mousemove", moveTooltip )
+                .on("mouseleave", hideTooltip )
+
+        })
+    </script>
+
+    <h3> Код </h3>
+    <pre><code>
+        var margin = {top: 10, right: 20, bottom: 30, left: 50},
+            width = 500 - margin.left - margin.right,
+            height = 420 - margin.top - margin.bottom;
+
+        var svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv("data/data3.csv", function(data) {
+
+            var x = d3.scaleLinear()
+                .domain([1980, 2025])
+                .range([ 0, width ]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            var y = d3.scaleLinear()
+                .domain([140, 300])
+                .range([ height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            var z = d3.scaleLinear()
+                .domain([0, 1000])
+                .range([ 5, 10]);
+
+           var tooltip = d3.select("#my_dataviz")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "#CB6DE1")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+                .style("color", "white")
+
+            var showTooltip = function(d) {
+                tooltip
+                    .transition()
+                    .duration(200)
+                tooltip
+                    .style("opacity", 1)
+                    .html("Artist: " + d.artist)
+                    .style("left", (d3.mouse(this)[0]+50) + "px")
+                    .style("top", (d3.mouse(this)[1]+50) + "px")
+            }
+            var moveTooltip = function(d) {
+                tooltip
+                    .style("left", (d3.mouse(this)[0]+50) + "px")
+                    .style("top", (d3.mouse(this)[1]+50) + "px")
+            }
+            var hideTooltip = function(d) {
+                tooltip
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 0)
+            }
+
+            svg.append('g')
+                .selectAll("dot")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("class", "bubbles")
+                .attr("cx", function (d) { return x(d.years); } )
+                .attr("cy", function (d) { return y(d.length); } )
+                .attr("r", function (d) { return z(d.popularity); } )
+                .on("mouseover", showTooltip )
+                .on("mousemove", moveTooltip )
+                .on("mouseleave", hideTooltip )
+
+        })
+    </code></pre>
+</div>
+</body>
+</html>
