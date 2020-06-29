@@ -1,0 +1,55 @@
+Среднее энергопотребление в час восточного региона США. Ночь-Утро-День-Вечер
+______________________________________________________________________________
+<iframe title="Среднее энергопотребление в час восточного региона США. Ночь-Утро-День-Вечер" aria-label="chart" id="datawrapper-chart-nRw1Q" src="https://datawrapper.dwcdn.net/nRw1Q/1/" scrolling="no" frameborder="0" style="width: 0; 
+min-width: 100% !important; border: none;" height="621">
+</iframe>
+<script type="text/javascript">!function(){
+"use strict";
+window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])
+for(var e in a.data["datawrapper-height"]){
+var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");
+t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+-----------------------------------------------------------------------------
+Среднее энергопотребление восточного региона США в час по дням. Июль 2013 - Август 2018гг.
+______________________________________________________________________________
+<iframe title="Среднее энергопотребление восточного региона США в час по дням. Июль 2013 - Август 2018гг." aria-label="Interactive area chart" id="datawrapper-chart-YquoQ" src="https://datawrapper.dwcdn.net/YquoQ/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="504">
+</iframe><script type="text/javascript">!function(){
+"use strict";
+window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])
+for(var e in a.data["datawrapper-height"])
+{var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");
+t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+-----------------------------------------------------------------------------
+Среднее энергопотребление восточного региона США в час по дням. Июль 2013 - Август 2018гг. Разделение по годам.
+______________________________________________________________________________
+<iframe title="Среднее энергопотребление восточного региона США в час по дням. Июль 2013 - Август 2018гг." aria-label="Interactive line chart" id="datawrapper-chart-jnGH0" src="https://datawrapper.dwcdn.net/jnGH0/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="400"></iframe>
+<script type="text/javascript">!function(){
+"use strict";
+window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])
+for(var e in a.data["datawrapper-height"]){
+var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");
+t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+-----------------------------------------------------------------------------
+Среднее энергопотребление в час восточного региона США. По дням недели
+______________________________________________________________________________
+<iframe title="Среднее энергопотребление в час восточного региона США. По дням недели" aria-label="chart" id="datawrapper-chart-edWRL" src="https://datawrapper.dwcdn.net/edWRL/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="400"></iframe>
+<script type="text/javascript">!function(){
+"use strict";
+window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])
+for(var e in a.data["datawrapper-height"]){
+var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");
+t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+------------------------------------------------------------------------------
+Сравнение максимумов и  минимумов энергопотребления восточного региона США в час по дням
+______________________________________________________________________________
+<iframe title="Сравнение максимумов и  минимумов энергопотребления восточного региона США в час по дням" aria-label="Interactive area chart" id="datawrapper-chart-AlI30" src="https://datawrapper.dwcdn.net/AlI30/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="484"></iframe>
+<script type="text/javascript">!function(){"use strict";
+window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])
+for(var e in a.data["datawrapper-height"]){
+var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");
+t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>

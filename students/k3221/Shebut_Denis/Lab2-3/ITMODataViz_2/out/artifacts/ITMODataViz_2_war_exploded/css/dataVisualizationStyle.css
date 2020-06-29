@@ -1,0 +1,131 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.clearfix:after {
+    content: "";
+    display:block;
+    clear: both;
+}
+
+html {
+    min-width: 300px;
+}
+
+html, body {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+}
+
+.header {
+    height: 100px;
+    background: #343841;
+    color: #fff;
+}
+
+#demotext {
+    color: #FFFFFF;
+    text-shadow: #FFF 0px 0px 5px, #FFF 0px 0px 10px, #FFF 0px 0px 15px, #ffdd16 0px 0px 20px, #FFDD16 0px 0px 30px, #FFDD16 0px 0px 40px, #FFDD16 0px 0px 50px, #FFDD16 0px 0px 75px;
+    padding-top: 1%;
+}
+
+#main_menu{
+    font-size: medium;
+}
+
+.footer {
+    height: 50px;
+    background: #134c50;
+    color: #fff;
+    position: page;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.content-wrapper {
+    height: 100%;
+    margin: 0 auto;
+    min-width: 300px;
+    max-width: 2000px;
+    position: relative;
+    min-height: 100%;
+
+}
+
+.content {
+    width: 100%;
+    float: left;
+    padding-right: 400px;
+    padding-left: 0.5%;
+    background: rgba(209, 211, 255, 0.69);
+}
+.content_landing {
+    width: 100%;
+    float: left;
+    padding-left: 5%;
+    padding-right: 5%;
+    background: rgba(209, 211, 255, 0.69);
+}
+
+.sidebar {
+    background: #008051;
+    float: left;
+    position: relative;
+}
+
+.sidebar1 {
+    width: 400px;
+    margin-left: -400px;
+}
+
+
+text {
+    font-family: arial, serif;
+    font-size: 12px;
+}
+
+path.line {
+    fill: none;
+    stroke: #6ea1ff;
+    stroke-width: 3px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: slategray;
+    shape-rendering: crispEdges;
+}
+
+.focus circle {
+    fill: none;
+    stroke: #1db494;
+}
+
+
+.container {
+    margin: auto;
+    max-width: 2000px;
+}
+p{
+    font-size: large;
+}
+ul{
+    font-size: xx-large;
+}
+
+.svg-container {
+    margin: 20px auto;
+    max-width: 2000px;
+    height: 100%;
+    width: 100%;
+}
