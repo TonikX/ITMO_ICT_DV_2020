@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Pie chart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+
+        body{
+            background: rgb(34,193,195);
+            background: linear-gradient(0deg, rgba(34,193,195,0.39) 0%, rgba(255,222,193,0.43) 100%);}
+        text {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+        path.line {
+            fill: none;
+            stroke: rgba(57, 179, 35, 0.99);
+            stroke-width: 3px;
+        }
+
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: darkslategray;
+        }
+
+        .container {
+            margin: auto;
+            max-width: 1024px;
+        }
+
+        .svg-container {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+
+        }
+        .links {
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(64,199,129);
+            box-shadow: 0 -3px rgb(53,167,110) inset;
+            transition: 0.2s;
+        }
+        .links:hover { background: rgb(53, 167, 110); }
+        .links:active {
+            background: rgb(33,147,90);
+            box-shadow: 0 3px rgb(33,147,90) inset;
+        }
+
+        .linksUn{
+            font-weight: 700;
+            color: black;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(213, 239, 129);
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>D3.js – Video games</h1>
+
+
+    <p class="linksUn">Pie chart</p>
+    <a class="links" href="line-chart.html">Line chart</a>
+    <a class="links" href="bar-chart.html">Bar chart</a>
+    <a class="links" href="treemap.html">Treemap</a>
+    <a class="links" href="lolipop-chart.html">Lolipop chart</a>
+    <a class="links" href="index.html">Back</a>
+
+
+    <p>
+        <br>
+        Круговые диаграммы идеально подходят для того, чтобы быстро сформировать представление о пропорциональном распределении данных.
+    </p>
+    <p>
+        Источник: <a href="https://datavizcatalogue.com/RU/metody/krugovaja_diagramma.html" target="_blank" style="">Каталог
+        Визуализации
+        Данных</a>
+    </p>
+
+    <h2>Распределение продаж по регионам</h2>
+    <svg width="450" height="450"></svg>
+
+    <script type="text/javascript">
+        var svg = d3.select("svg"),
+            width = svg.attr("width"),
+            height = svg.attr("height"),
+            margin = 40;
+        var radius = Math.min(width, height) / 2 - margin;
+
+        var g = svg.append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        var color = d3.scaleOrdinal()
+            .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"])
+
+        var pie = d3.pie().value(function(d) {
+            return d.Sales;
+        });
+
+
+
+        var path = d3.arc()
+            .outerRadius(radius)
+            .innerRadius(0);
+
+        var label = d3.arc()
+            .outerRadius(radius)
+            .innerRadius(radius - 80);
+
+        d3.csv("for-pie-chart.csv", function(error, data) {
+            if (error) {
+                throw error;
+            }
+            var arc = g.selectAll(".arc")
+                .data(pie(data))
+                .enter().append("g")
+                .attr("class", "arc");
+
+            arc.append("path")
+                .attr("d", path)
+                .attr("fill", function(d) { return color(d.data.Region); })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7);
+
+
+            arc.append("text")
+                .attr("transform", function(d) {
+                    return "translate(" + label.centroid(d) + ")";
+                })
+                .text(function(d) { return d.data.Region; })
+                .style("text-anchor", "middle")
+                .style("font-size", 17);
+            arc.append("text")
+                .attr("transform", function(d) {
+                    return "translate(" + path.centroid(d) + ")";
+                })
+                .text(function(d) { return d.data.Sales; })
+                .style("text-anchor", "middle")
+                .style("font-size", 20)
+                .style("fill", "white");
+
+        });
+    </script>
+
+
+    <p>
+        Описание: данная диаграмма помогает понять, в каких регионах игр жанра RPG было продано больше всего
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        var svg = d3.select("svg"),
+            width = svg.attr("width"),
+            height = svg.attr("height"),
+            margin = 40;
+        var radius = Math.min(width, height) / 2 - margin;
+
+        var g = svg.append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        var color = d3.scaleOrdinal()
+            .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"])
+
+        var pie = d3.pie().value(function(d) {
+            return d.Sales;
+        });
+
+
+
+        var path = d3.arc()
+            .outerRadius(radius)
+            .innerRadius(0);
+
+        var label = d3.arc()
+            .outerRadius(radius)
+            .innerRadius(radius - 80);
+
+        d3.csv("rsumRPG.csv", function(error, data) {
+            if (error) {
+                throw error;
+            }
+            var arc = g.selectAll(".arc")
+                .data(pie(data))
+                .enter().append("g")
+                .attr("class", "arc");
+
+            arc.append("path")
+                .attr("d", path)
+                .attr("fill", function(d) { return color(d.data.Region); })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7);
+
+
+            arc.append("text")
+                .attr("transform", function(d) {
+                    return "translate(" + label.centroid(d) + ")";
+                })
+                .text(function(d) { return d.data.Region; })
+                .style("text-anchor", "middle")
+                .style("font-size", 17);
+            arc.append("text")
+                .attr("transform", function(d) {
+                    return "translate(" + path.centroid(d) + ")";
+                })
+                .text(function(d) { return d.data.Sales; })
+                .style("text-anchor", "middle")
+                .style("font-size", 20)
+                .style("fill", "white");
+
+        });
+    </code></pre>
+
+</div>
+</body>
+</html>

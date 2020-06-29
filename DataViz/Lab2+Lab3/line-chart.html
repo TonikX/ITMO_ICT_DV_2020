@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Line chart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+
+        body{
+            background: rgb(34,193,195);
+            background: linear-gradient(0deg, rgba(34,193,195,0.39) 0%, rgba(255,222,193,0.43) 100%);}
+        text {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+        path.line {
+            fill: none;
+            stroke: #69b3a2;
+            stroke-width: 3px;
+        }
+
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: darkslategray;
+        }
+
+        .container {
+            margin: auto;
+            max-width: 1024px;
+        }
+
+        .svg-container {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+
+        }
+        .links {
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(64,199,129);
+            box-shadow: 0 -3px rgb(53,167,110) inset;
+            transition: 0.2s;
+        }
+        .links:hover { background: rgb(53, 167, 110); }
+        .links:active {
+            background: rgb(33,147,90);
+            box-shadow: 0 3px rgb(33,147,90) inset;
+        }
+
+        .linksUn{
+            font-weight: 700;
+            color: black;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(213, 239, 129);
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>D3.js – Video games</h1>
+
+
+    <p class="linksUn">Line chart</p>
+    <a class="links" href="bar-chart.html">Bar chart</a>
+    <a class="links" href="treemap.html">Treemap</a>
+    <a class="links" href="pie-chart.html">Pie chart</a>
+    <a class="links" href="lolipop-chart.html">Lolipop chart</a>
+    <a class="links" href="index.html">Back</a>
+
+
+    <p>
+        <br>
+        Линейные графики используются для отображения количественных показателей за непрерывный интервал или
+        определенный период времени.
+    </p>
+    <p>
+        Источник: <a href="https://datavizcatalogue.com/RU/metody/linejnyj_grafik.html" target="_blank" style="">Каталог
+        Визуализации
+        Данных</a>
+    </p>
+
+    <h2>Продажи компании Ubisoft</h2>
+
+    <script type="text/javascript">
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const svg = d3.select("h2")
+            .append("div").attr("class", "svg-container")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+        const xNudge = 40, yNudge =  10;
+        let minF, maxF = 0;
+
+        d3.csv("for-line-chart.csv")
+            .row(function(d) {
+                return {
+                    World: Number(d.World),
+                    Nume: d.Nume,
+                };
+            })
+            .get(function (error, rows) {
+
+                maxF = d3.max(rows, function (d) {
+                    return d.World;
+                });
+
+                minF = d3.min(rows, function (d) {
+                    return d.World;
+                });
+
+                const y = d3.scale.linear().domain([0.0, maxF]).range([height, 0]);
+                const x = d3.scale.linear().domain([0, rows.length]).range([0, width]);
+
+                const yAxis = d3.svg.axis().orient("left").scale(y);
+                const xAxis = d3.svg.axis().scale(x).orient("bottom");
+
+                let line = d3.svg.line().x(function (d) {
+                    return x(d.Nume);
+                }).y(function (d) {
+                    return y(d.World);
+                });
+
+                let chartGroup = svg.append("g").attr("class", "chartGroup").attr("transform", "translate(" + xNudge + "," + yNudge + ")");
+
+                chartGroup.append("path").attr("class", "line").attr("d", function(d) {return line(rows);});
+                chartGroup.append("g").attr("class", "axis x").attr("transform", "translate(0," + height + ")").call(xAxis);
+                chartGroup.append("g").attr("class", "axis y").call(yAxis);
+
+            });
+    </script>
+
+    <p>
+        Описание: данный график отображает динамику продаж издателя Ubisoft по 25 тайтлам за 2013-2020 года
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const svg = d3.select("h2")
+            .append("div").attr("class", "svg-container")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+        const xNudge = 40, yNudge =  10;
+        let minF, maxF = 0;
+
+        d3.csv("df.csv")
+            .row(function(d) {
+                return {
+                    World: Number(d.World),
+                    Nume: d.Nume,
+                };
+            })
+            .get(function (error, rows) {
+
+                maxF = d3.max(rows, function (d) {
+                    return d.World;
+                });
+
+                minF = d3.min(rows, function (d) {
+                    return d.World;
+                });
+
+                const y = d3.scale.linear().domain([0.0, maxF]).range([height, 0]);
+                const x = d3.scale.linear().domain([0, rows.length]).range([0, width]);
+
+                const yAxis = d3.svg.axis().orient("left").scale(y);
+                const xAxis = d3.svg.axis().scale(x).orient("bottom");
+
+                let line = d3.svg.line().x(function (d) {
+                    return x(d.Nume);
+                }).y(function (d) {
+                    return y(d.World);
+                });
+
+                let chartGroup = svg.append("g").attr("class", "chartGroup").attr("transform", "translate(" + xNudge + "," + yNudge + ")");
+
+                chartGroup.append("path").attr("class", "line").attr("d", function(d) {return line(rows);});
+                chartGroup.append("g").attr("class", "axis x").attr("transform", "translate(0," + height + ")").call(xAxis);
+                chartGroup.append("g").attr("class", "axis y").call(yAxis);
+
+            });
+    </code></pre>
+</div>
+</body>
+</html>
