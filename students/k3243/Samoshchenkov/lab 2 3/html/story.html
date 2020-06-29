@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Storytelling</title>
+<style>
+
+.arc text {
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+.arc path {
+  stroke: #fff;
+}
+
+</style>
+<head>
+<script src="//d3js.org/d3.v4.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/">Лабораторная работа №2</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+
+      <li class="nav-item">
+        <a class="nav-link" href="/1.html">График №1</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/2.html">График №2</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/3.html">График №3</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/4.html">График №4</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/5.html">График №5</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/story.html">Storytelling</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<body>
+<h2>Storytelling</h2>
+<br><br>
+<p>
+Мне хотелось поработать с данными какого-нибудь интернет-ресурса с большой базой данных пользователей, оставляющих много оценок и отзывов на что-либо, тем самым формируя рейтинг этого чего-либо.<br>
+IMDb и kinopoisk, которые первыми приходят в голову, в рамках этого курса уже заняли другие люди, поэтому выбор пал на myanimelist.<br>
+Датасет состоит из двух частей. Первый csv файл содержит информацию о пользователях сайта, второй - о тайтлах.<br>
+Сначала я сделал необходимые выборки из этих таблиц, используя Pandas, затем принялся визуализировать эти выборки и анализировать полученные графики.<br>
+</p>
+<br><br>
+
+<iframe title="Гендерный состав пользователей сайта" aria-label="chart" id="datawrapper-chart-1" src="https://sun9-58.userapi.com/td9mdcqE9bHFQKM9QIcj0H_xKv8hH6cnraxFlg/VCBgDxiSq6E.jpg" scrolling="no" frameborder="0" style="border: none;" width="600" height="562"></iframe>
+<br>
+<br>
+<p>
+На графике видно, что большую часть аудитории сайта составляют лица мужского пола, лица женского пола и люди, оставившие графу "пол" пустой делятся примерно поровну, небинарные пользователи составляют меньше 1% аудитории.<br>
+Мои ожидания примерно оправдались. Значительная часть аудитории не сочла нужным заполнение профиля, а среди тех, кто заполнил, больше мужчин.<br>
+</p>
+<br>
+<iframe title="Гендерный состав пользователей сайта подросткового возраста" aria-label="column chart" id="datawrapper-chart-2" src="https://sun9-61.userapi.com/vnVdFiw2OYAGi4-Piye08DsTOxb09362yQ-aiA/5WAkum2VJE0.jpg" scrolling="no" frameborder="0" style="border: none;" width="737" height="400"></iframe>
+<br>
+<br>
+<p>
+Далее меня заинтересовала ситуация у пользователей подросткового возраста. <br>
+Как оказалось, подростки гораздо больше внимания уделяют своему профилю. Доля людей, оставивших графу "пол" пустой, мала. <br>
+Также в этой возрастной категории количество лиц мужского и женского пола примерно уравнивается, а в моей выборке девушек оказалось даже больше. Мои школьные наблюдения оправдались.<br>
+</p>
+<br>
+<iframe title="Количество оценок тайтлов с самым высоким рейтингом" aria-label="bar Chart" id="datawrapper-chart-3" src="https://sun9-56.userapi.com/p0Yo5oY4O2uEI3kZcDRgzdrmKfJBtFWjtTMaPQ/_uFQDyahFmA.jpg" scrolling="no" frameborder="0" style="border: none;" width="814" height="570"></iframe>
+<br>
+<p>
+Далее я решил заняться рейтингом аниме. Выгрузив 20 тайтлов с самым высоким рейтингом и сопоставив их количеством оценок, я обнаружил отсутствие закономерности между рейтингом и популярностью.<br>
+На самом сайте рейтинг выглядит иначе, потому что для попадания в него тайтл должен набрать критическую массу оценок, но датасет не учитывает эту массу. Таким образом, я получил новый взгляд на лидерборды myanimelist'а.<br>
+
+</p>
+
+</body>
