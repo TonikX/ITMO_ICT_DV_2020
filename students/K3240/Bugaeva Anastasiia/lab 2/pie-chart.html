@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+    <style>
+        .axis {
+            opacity: 0.4;
+        }
+        .axis:hover {
+            opacity: 1;
+        }
+    </style>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            stroke: #4a0081;
+            stroke-width: 1.5px;
+            shape-rendering: crispEdges;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – samples (Coffee and Code)</h1>
+
+    <ul>
+        <li><a href="scribble.html">Scribble (line chart)</a></li>
+        <li><a href="line-chart.html">Line chart</a></li>
+        <li>Pie chart</li>
+        <li><a href="parallel-chart.html">Parallel coordinates chart</a></li>
+        <li><a href="ridgeline-chart.html">Ridgeline chart</a></li>
+    </ul>
+
+    <p>
+        Круговая диаграмма - это круг, разделенный на сектора, каждый из которых представляет собой часть целого.
+        Он часто используется для отображения процента, где сумма секторов равна 100%.
+    </p>
+    <p>
+        Источник: <a href="https://www.data-to-viz.com/caveat/pie.html" target="_blank">From Data To Viz</a>
+    </p>
+
+    <h2>Диаграмма</h2>
+
+    <div id="my_dataviz"></div>
+
+    <script>
+        // set the dimensions and margins of the graph
+        const width = 700;
+        const height = 700;
+        const margin = 20;
+
+        // append the svg object to the div called 'my_dataviz'
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+            // group the data: I want to draw one line per group
+            const groupData = d3.nest() // nest function allows to group the calculation per level of a factor
+                .key(function(d) { return d.AgeRange;})
+                .entries(data)
+                .map(function(d) {
+                    return {
+                        "key": d.key,
+                        "n": d.values.length
+                    }
+                });
+
+            // set the color scale
+            const color = d3.scaleOrdinal()
+                .domain(groupData)
+                .range(d3.schemeSet2);
+
+            // Compute the position of each group on the pie:
+            const pie = d3.pie()
+                .value(function(d) { return d.value.n; });
+            const data_ready = pie(d3.entries(groupData));
+            // Now I know that group A goes from 0 degrees to x degrees and so on.
+
+            const radius = Math.min(width, height) / 2 * 0.8;
+            const arcLabel = d3.arc().innerRadius(radius+55).outerRadius(radius+55);
+
+            // shape helper to build arcs:
+            const arcGenerator = d3.arc()
+                .innerRadius(radius/3)
+                .outerRadius(radius);
+
+            // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+            svg.selectAll('mySlices')
+                .data(data_ready)
+                .enter().append('path')
+                .attr('d', arcGenerator)
+                .attr('fill', function(d){ return(color(d.data.key)) })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7);
+
+            svg.append("g")
+                .attr("font-family", "sans-serif")
+                .attr("font-size", 12)
+                .attr("text-anchor", "middle")
+                .selectAll("text")
+                .data(data_ready)
+                .enter().append("text")
+                .attr("transform", d => `translate(${arcLabel.centroid(d)})`)
+                .call(text => text.append("tspan")
+                    .attr("y", "-0.4em")
+                    .attr("font-weight", "bold")
+                    .text(d => d.data.value.key))
+                .call(text => text.filter(d => (d.endAngle - d.startAngle) > 0).append("tspan")
+                    .attr("x", 0)
+                    .attr("y", "0.7em")
+                    .attr("fill-opacity", 0.7)
+                    .text(d => d.value.toLocaleString()+"%"));
+
+            // Now add the annotation. Use the centroid method to get the best coordinates
+            // svg.selectAll('mySlices')
+            //     .data(data_ready)
+            //     .enter().append('text')
+            //     .text(function(d){ return d.data.value.key})
+            //     .text(function(d){ console.log(d.value); return d.value})
+            //     .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+            //     .style("text-anchor", "middle")
+            //     .style("font-size", 13)
+        });
+    </script>
+
+    <p>
+        Диаграмма показывает разделение программистов из датасета по возростам.
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        // set the dimensions and margins of the graph
+        const width = 550;
+        const height = 550;
+        const margin = 40;
+
+        // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+        const radius = Math.min(width, height) / 2 - margin;
+
+        // append the svg object to the div called 'my_dataviz'
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+            // group the data: I want to draw one line per group
+            const groupData = d3.nest() // nest function allows to group the calculation per level of a factor
+                .key(function(d) { return d.AgeRange;})
+                .entries(data)
+                .map(function(d) {
+                    return {
+                        "key": d.key,
+                        "n": d.values.length
+                    }
+                });
+
+            // set the color scale
+            const color = d3.scaleOrdinal()
+                .domain(groupData)
+                .range(d3.schemeSet2);
+
+            // Compute the position of each group on the pie:
+            const pie = d3.pie()
+                .value(function(d) { return d.value.n; });
+            const data_ready = pie(d3.entries(groupData));
+            // Now I know that group A goes from 0 degrees to x degrees and so on.
+
+            // shape helper to build arcs:
+            const arcGenerator = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+            svg.selectAll('mySlices')
+                .data(data_ready)
+                .enter()
+                .append('path')
+                .attr('d', arcGenerator)
+                .attr('fill', function(d){ return(color(d.data.key)) })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7);
+
+            // Now add the annotation. Use the centroid method to get the best coordinates
+            svg.selectAll('mySlices')
+                .data(data_ready)
+                .enter().append('text')
+                .text(function(d){ return d.data.value.key})
+                .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+                .style("text-anchor", "middle")
+                .style("font-size", 17)
+        });
+    </code></pre>
+
+</div>
+</body>
+</html>

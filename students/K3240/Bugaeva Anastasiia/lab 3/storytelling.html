@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <style>
+        .axis {
+            opacity: 0.4;
+        }
+        .axis:hover {
+            opacity: 1;
+        }
+    </style>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            stroke: #4a0081;
+            stroke-width: 1.5px;
+            shape-rendering: crispEdges;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>Помогает ли кофе кодить?</h1>
+
+    <h5>
+        Мнение о том, что кофе непременно поможет справиться со сложными задачами крайне распространено. И сегодня я
+        предлагаю это проверить.
+    </h5>
+    <p>
+        В мои руки попал интересный датасет с данными о программистах, которым задавали различные вопросы о применении
+        кофе во время программирования. Давайте рассмотрим средние значения потребления этого напитка (в чашках в сутки) и
+        кодинга (в часах в сутки), разбив респондентов на 3 группы по отношению к кофе: не представляющих свою работу без него <i>("No")</i>,
+        спокойно программирующих без кофе <i>("Yes")</i> и тех, кто садится за код то с чашечкой кофе, то без <i>("Sometimes")</i>.
+    </p>
+
+    <div id="line"></div>
+
+    <script>
+        (function () {
+            // set the dimensions and margins of the graph
+            const margin = {top: 30, right: 200, bottom: 70, left: 60};
+            const width = 660 - margin.left - margin.right;
+            const height = 380 - margin.top - margin.bottom;
+
+            // append the svg object to the body of the page
+            const svg = d3.select("#line")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+            // Parse the Data
+            d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+                const categories = ["Yes", "Sometimes", "No"];
+
+                const xName = d3.scaleBand()
+                    .domain(categories)
+                    .range([0, width])
+                    .paddingInner(1);
+
+                // Add X axis
+                const x = d3.scaleLinear()
+                    .domain([0, 2])
+                    .range([0, width]);
+                svg.append("g")
+                    .attr("class", "xAxis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(xName));
+
+                // Add Y axis
+                const y = d3.scaleLinear()
+                    .domain([0, 7])
+                    .range([height, 0]);
+                svg.append("g")
+                    .call(d3.axisLeft(y).ticks(6));
+
+                const meanHours = [{"x": 0, "y": 5.633333333}, { "x": 1, "y": 6.647058824}, {"x": 2, "y": 7}];
+                const meanCups = [{"x": 0, "y": 2.066666667}, { "x": 1, "y": 2.941176471}, {"x": 2, "y": 4.052631579}]
+
+                // Draw the line
+                svg.append("path")
+                    .datum(meanHours)
+                    .attr("fill", "none")
+                    .attr("stroke", "#B4C7E7")
+                    .attr("stroke-width", 4)
+                    .attr("d", d3.line()
+                        .x(function(d) { return x(d["x"]) })
+                        .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+                svg.append("path")
+                    .datum(meanCups)
+                    .attr("fill", "none")
+                    .attr("stroke", "#6039b8")
+                    .attr("stroke-width", 4)
+                    .attr("d", d3.line()
+                        .x(function(d) { return x(d["x"]) })
+                        .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+
+                svg.append("circle").attr("cx", width+10).attr("cy", height/4-30).attr("r", 6).style("fill", "#B4C7E7");
+                svg.append("circle").attr("cx", width+10).attr("cy", height/4).attr("r", 6).style("fill", "#6039b8");
+                svg.append("text").attr("x", width+30).attr("y", height/4-30).text("Coding Hours").style("font-size", "15px").attr("alignment-baseline","middle");
+                svg.append("text").attr("x", width+30).attr("y", height/4).text("Coffee Cups Per Day").style("font-size", "15px").attr("alignment-baseline","middle");
+            })
+        }());
+    </script>
+
+    <p>
+        Легко заметить, что эти 2 параметра напрямую связаны. Люди из группы <i><b>No</b></i> заметно больше пьют кофе и
+        ощутимо дольше кодят, чем программисты из группы <i><b>Yes</b></i>. Как и ожидалось, показатели группы <i><b>Sometimes</b></i>
+        при этом по обоим параметрам находятся где-то между показателями групп с чёткой позицией насчёт кофе.
+    </p>
+
+    <p>
+        Теперь давайте рассмотрим <b>не</b> усреднённые показатели. Отобразим все имеющиеся у нас данные на графике с параллельными
+        осями. По одной оси отложим число чашек кофе в сутки, по другой - часы кодинга. Сохраним разбиение на группы,
+        присвоив каждой группе свой цвет.
+    </p>
+
+    <div id="parallel"></div>
+
+    <script>
+        (function () {
+            // set the dimensions and margins of the graph
+            const margin = {top: 30, right: 50, bottom: 10, left: 50};
+            const width = 620 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            // append the svg object to the body of the page
+            const svg = d3.select("#parallel")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+            // Parse the Data
+            d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+                // Color scale: give me a group name, I return a color
+                const color = d3.scaleOrdinal()
+                    .domain(["Yes", "Sometimes", "No"])
+                    .range(["lightblue", "violet", "purple"]);
+
+                // Here I set the list of dimension manually to control the order of axis:
+                const dimensions = ["CoffeeCupsPerDay", "CodingHours"];
+
+                // For each dimension, I build a linear scale. I store all in a y object
+                let y = {};
+                for (let i in dimensions) {
+                    const name = dimensions[i];
+                    y[name] = d3.scaleLinear()
+                        .domain([0,11]) // --> Same axis range for each group
+                        .range([height, 0])
+                }
+
+                // Build the X scale -> it find the best position for each Y axis
+                const x = d3.scalePoint()
+                    .range([0, width - 140])
+                    .padding(0.1)
+                    .domain(dimensions);
+
+                // Highlight the group that is hovered
+                const highlight = function(d){
+
+                    const selected_group = d["CodingWithoutCoffee"];
+
+                    // First every group turns grey
+                    d3.selectAll(".line")
+                        .transition().duration(300)
+                        .style("stroke", "lightgrey").style("opacity", "0.2");
+                    // Second the hovered group takes its color
+                    d3.selectAll("." + selected_group)
+                        .transition().duration(300)
+                        .style("stroke", color(selected_group)).style("opacity", "1")
+                };
+
+                // Unhighlight
+                let doNotHighlight = function(d){
+                    d3.selectAll(".line")
+                        .transition().duration(1800).delay(1000)
+                        .style("stroke", function(d){ return(color(d["CodingWithoutCoffee"]))} ).style("opacity", "0.5")
+                };
+
+                // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
+                function path(d) {
+                    return d3.line()(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+                }
+
+                // Draw the lines
+                svg.selectAll("myPath")
+                    .data(data).enter().append("path")
+                    .attr("class", function (d) { return "line " + d["CodingWithoutCoffee"] }) // 2 class for each line: 'line' and the group name
+                    .attr("d",  path)
+                    .style("stroke", function(d){ return color(d["CodingWithoutCoffee"])}).style("opacity", 0.5)
+                    .on("mouseover", highlight).on("mouseleave", doNotHighlight );
+
+                // Draw the axis
+                svg.selectAll("myAxis")
+                    // For each dimension of the dataset I add a 'g' element:
+                    .data(dimensions).enter().append("g")
+                    .attr("class", "axis")
+                    // I translate this element to its right position on the x axis
+                    .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+                    // And I build the axis with the call function
+                    .each(function(d) { d3.select(this).call(d3.axisLeft().ticks(5).scale(y[d])); })
+                    // Add axis title
+                    .append("text").style("text-anchor", "middle")
+                    .attr("y", -9)
+                    .text(function(d) { return d; }).style("fill", "black");
+
+                const sometimes = data.filter(function(d) { if (d["CodingWithoutCoffee"]=="Sometimes") {return d} });
+                const no = data.filter(function(d) { if (d["CodingWithoutCoffee"]=="No") {return d} });
+
+                // Handmade legend
+                svg.append("text").attr("x", 380).attr("y", 100).text("Coding without coffee?").style("font-size", "18px")
+                    .attr("alignment-baseline","middle").style("font-style", "italic");
+                svg.append("circle").attr("cx", 380).attr("cy", 130).attr("r", 6).style("fill", "lightblue")
+                    .data(data).on("mouseover", highlight).on("mouseleave", doNotHighlight );
+                svg.append("circle").attr("cx", 380).attr("cy", 160).attr("r", 6).style("fill", "violet")
+                    .data(sometimes).on("mouseover", highlight).on("mouseleave", doNotHighlight );
+                svg.append("circle").attr("cx", 380).attr("cy", 190).attr("r", 6).style("fill", "purple")
+                    .data(no).on("mouseover", highlight).on("mouseleave", doNotHighlight );
+                svg.append("text").attr("x", 400).attr("y", 130).text("Yes, coding without").style("font-size", "15px").attr("alignment-baseline","middle");
+                svg.append("text").attr("x", 400).attr("y", 160).text("Sometimes, without").style("font-size", "15px").attr("alignment-baseline","middle");
+                svg.append("text").attr("x", 400).attr("y", 190).text("No, coding with coffee").style("font-size", "15px").attr("alignment-baseline","middle")
+            });
+        }());
+    </script>
+
+    <p>
+        Можно было ожидать вполне чёткого разделения на группы, однако, это не произошло. Но можно заметить, что единственный
+        человек, выпивающий 8 чашек кофе в день относится к группе тех, кто не кодит без кофе, и программирует он 10 часов
+        в сутки - не единственный, конечно, но и больше времени за кодом никто не проводит. Так же мы видим, что среди
+        представителей этой группы нет ни одного человека, который употреблял бы всего 1 чашку в день. <br> Для группы респондентов,
+        ответивших, что кофе не помогает им кодить, потребление этого напитка лежит в пределе от 1 до 4 чашек <i>(Исключение
+        составляет только 1 человек: он выпивает 7 чашек кофе в день)</i>, что не мешает программировать им и по 10 часов.
+        Так же этой группе принадлежит единственный человек, посвящающий программированию всего 1 час в сутки.
+    </p>
+
+    <p>
+        Несмотря на некоторые явные закономерности, можно сделать вывод, что всё крайне индивидуально. Кому-то хватает
+        одной чашки кофе на 10 часов работы, а кто-то и с семью чашками программирует всего 4 часа. <br> Может, всё
+        дело в выборе <i><b>типа</b></i> кофе, а не в его <i><b>количестве</b></i>? Предлагаю рассмотреть следующий любопытный график: он показывает плотность
+        распределения вероятности программировать то или иное количество часов в сутки, в зависимости от того, <i>какой</i> кофе
+        вы предпочитаете. В дополнение, цвет подсказывает среднее значение часов программирования для каждого типа кофе:
+        чем светлее площадь под графиком, тем больше (в среднем) программируют люди, выбирающие этот тип кофе.
+    </p>
+
+    <div id="ridge"></div>
+
+    <script>
+        (function () {
+            // set the dimensions and margins of the graph
+            const margin = {top: 60, right: 30, bottom: 50, left:110};
+            const width = 460 - margin.left - margin.right;
+            const height = 385 - margin.top - margin.bottom;
+
+            // append the svg object to the body of the page
+            const svg = d3.select("#ridge")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+            // Parse the Data
+            d3.csv("data/CoffeeTypes.csv", function(data) {
+
+                // Get the different categories and count them
+                const categories = ["Americano", "Caffè latte", "Cappuccino", "Doppio", "Espresso", "Nescafe", "Turkish"];
+                const n = categories.length;
+
+                // Compute the mean of each group
+                let allMeans = [];
+                for (let i in categories){
+                    let currentGroup = categories[i];
+                    let mean = d3.mean(data, function(d) { if (d[currentGroup]) {return +d[currentGroup]} });
+                    allMeans.push(mean)
+                }
+
+                // Create a color scale using these means.
+                const myColor = d3.scaleSequential()
+                    .domain([4.5, 8])
+                    .interpolator(d3.interpolateViridis);
+
+                // Add X axis
+                const x = d3.scaleLinear()
+                    .domain([0, 11])
+                    .range([0, width]);
+                svg.append("g")
+                    .attr("class", "xAxis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).tickValues([0, 2, 4, 6, 8, 10]).tickSize(-height))
+                    .select(".domain").remove();
+
+                // Add X axis label
+                svg.append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("x", width/2)
+                    .attr("y", height + 40)
+                    .style("font-size", "30")
+                    .text("CodingHours");
+
+                // Create a Y scale for densities
+                const y = d3.scaleLinear()
+                    .domain([0, 1.7])
+                    .range([height, 0]);
+
+                // Create the Y axis for names
+                const yName = d3.scaleBand()
+                    .domain(categories)
+                    .range([0, height])
+                    .paddingInner(1);
+                svg.append("g")
+                    .attr("class", "xAxis")
+                    .call(d3.axisLeft(yName).tickSize(-width))
+                    .select(".domain").remove();
+
+                const axisMeans = allMeans.map(function(m) {
+                    return m.toFixed(2);
+                });
+
+                const means = d3.scaleBand()
+                    .domain(axisMeans)
+                    .range([10, height+10])
+                    .paddingInner(1);
+                svg.append("g")
+                    .attr("class", "xAxis")
+                    .call(d3.axisLeft(means).tickSize(0))
+                    .select(".domain").remove();
+
+                // Compute kernel density estimation for each column:
+                const kde = kernelDensityEstimator(kernelEpanechnikov(0.715), x.ticks(40)); // increase this 40 for more accurate density.
+                const allDensity = [];
+                for (let i = 0; i < n; i++) {
+                    let key = categories[i];
+                    let density = kde(data.map(function(d){ return d[key]; }));
+                    allDensity.push({key: key, density: density})
+                }
+
+                // Add areas
+                svg.selectAll("areas")
+                    .data(allDensity)
+                    .enter().append("path")
+                    .attr("transform", function(d){ return("translate(0," + (yName(d.key)-height) +")") })
+                    .attr("fill", function(d){
+                        let grp = d.key ;
+                        let index = categories.indexOf(grp);
+                        let value = allMeans[index];
+                        return myColor(value)
+                    })
+                    .datum(function(d){ return(d.density) })
+                    .attr("opacity", 0.6)
+                    .attr("stroke", "#000")
+                    .attr("stroke-width", 0.2)
+                    .attr("d",  d3.line()
+                        .curve(d3.curveBasis)
+                        .x(function(d) { return x(d[0]); })
+                        .y(function(d) { return y(d[1]); })
+                    )
+            });
+
+            // This is what I need to compute kernel density estimation
+            // X - 0 <= i*0,2 <= 11
+            // Data from one column
+            function kernelDensityEstimator(kernel, X) {
+                return function(V) {
+                    return X.map(function(x) {
+                        return [x, d3.mean(V, function(v) { if (v) {return kernel(x - v);} })];
+                    });
+                };
+            }
+            function kernelEpanechnikov(k) {
+                return function(v) {
+                    return Math.abs(v /= k) <= 1 ? 0.75 * (1 - v * v) / k : 0;
+                };
+            }
+        }());
+    </script>
+
+    <p>
+        Из графика явно видно: наиболее продуктивен ты будешь при выборе доппио (двойной эспрессо) или американо (доппио,
+        разбавленный горячей водой), что вполне ожидаемо. Однако, удивительно, насколько проигрывает одинарный эспрессо двойному.
+    </p>
+
+    <h5>
+        Подводя итоги, можно сделать следующие выводы:
+    </h5>
+    <p>
+        Кофе действительно способен повысить вашу продуктивность, хотя этот способ поможет далеко не всем. Но если уж вы решили
+        прибегнуть к помощи этого напитка, то лучше брать качеством, а не количеством: лучше немного чистого кофе, чем много
+        латте, в котором молока больше, чем самого кофе.
+    </p>
+
+</div>
+</body>
+</html>

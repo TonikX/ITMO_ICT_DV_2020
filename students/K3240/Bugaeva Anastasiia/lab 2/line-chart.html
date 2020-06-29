@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <style>
+        .axis {
+            opacity: 0.4;
+        }
+        .axis:hover {
+            opacity: 1;
+        }
+    </style>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            stroke: #4a0081;
+            stroke-width: 1.5px;
+            shape-rendering: crispEdges;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – samples (Coffee and Code)</h1>
+
+    <ul>
+        <li><a href="scribble.html">Scribble (line chart)</a></li>
+        <li>Line chart</li>
+        <li><a href="pie-chart.html">Pie chart</a></li>
+        <li><a href="parallel-chart.html">Parallel coordinates chart</a></li>
+        <li><a href="ridgeline-chart.html">Ridgeline chart</a></li>
+    </ul>
+
+    <p>
+        Линейный график показывает эволюцию одной или нескольких числовых переменных. Точки данных связаны прямыми
+        отрезками или плавной линией. Он аналогичен точечной диаграмме, за исключением того, что точки измерения
+        упорядочены (обычно по значению их оси x) и соединены. Это наиболее популярный график для демонстрации
+        трендов и соотношения показателей (при использовании нескольких линий). Линейные графики очень полезны для
+        получения «общей картины» за определенный промежуток времени и наблюдения за развитием в этот период времени.
+    </p>
+    <p>
+        Источник: <a href="https://www.data-to-viz.com/graph/line.html" target="_blank">From Data To Viz</a>
+    </p>
+
+    <h2>Диаграмма</h2>
+
+    <div id="my_dataviz"></div>
+
+    <script>
+        // set the dimensions and margins of the graph
+        const margin = {top: 30, right: 200, bottom: 70, left: 60};
+        const width = 660 - margin.left - margin.right;
+        const height = 380 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+            const categories = ["Yes", "Sometimes", "No"];
+
+            const xName = d3.scaleBand()
+                .domain(categories)
+                .range([0, width])
+                .paddingInner(1);
+
+            // Add X axis
+            const x = d3.scaleLinear()
+                .domain([0, 2])
+                .range([0, width]);
+            svg.append("g")
+                .attr("class", "xAxis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xName));
+
+            // Add Y axis
+            const y = d3.scaleLinear()
+                .domain([0, 7])
+                .range([height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y).ticks(6));
+
+            const meanHours = [{"x": 0, "y": 5.633333333}, { "x": 1, "y": 6.647058824}, {"x": 2, "y": 7}];
+            const meanCups = [{"x": 0, "y": 2.066666667}, { "x": 1, "y": 2.941176471}, {"x": 2, "y": 4.052631579}]
+
+            // Draw the line
+            svg.append("path")
+                .datum(meanHours)
+                .attr("fill", "none")
+                .attr("stroke", "#B4C7E7")
+                .attr("stroke-width", 4)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d["x"]) })
+                    .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+            svg.append("path")
+                .datum(meanCups)
+                .attr("fill", "none")
+                .attr("stroke", "#6039b8")
+                .attr("stroke-width", 4)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d["x"]) })
+                    .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+
+            svg.append("circle").attr("cx", width+10).attr("cy", height/4-15).attr("r", 6).style("fill", "#B4C7E7");
+            svg.append("circle").attr("cx", width+10).attr("cy", height/4+15).attr("r", 6).style("fill", "#6039b8");
+            svg.append("text").attr("x", width+30).attr("y", height/4-15).text("Coding Hours").style("font-size", "15px").attr("alignment-baseline","middle");
+            svg.append("text").attr("x", width+30).attr("y", height/4+15).text("Coffee Cups Per Day").style("font-size", "15px").attr("alignment-baseline","middle");
+        })
+    </script>
+
+    <p>
+        Диаграмма показывает, как зависит количество выпиваемого кофе в среднем за сутки, от того, программирует ли человек
+        без него. Так же тут изображена зависимость количество часов кодинга. Легко заметить, что эти 2 параметра напрямую
+        связаны.
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        // set the dimensions and margins of the graph
+        const margin = {top: 30, right: 150, bottom: 70, left: 60};
+        const width = 660 - margin.left - margin.right;
+        const height = 380 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+            const categories = ["Yes", "Sometimes", "No"];
+
+            const xName = d3.scaleBand()
+                .domain(categories)
+                .range([0, width])
+                .paddingInner(1);
+
+            // Add X axis
+            const x = d3.scaleLinear()
+                .domain([0, 2])
+                .range([0, width]);
+            svg.append("g")
+                .attr("class", "xAxis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xName));
+
+            // Add Y axis
+            const y = d3.scaleLinear()
+                .domain([0, 7])
+                .range([height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y).ticks(6));
+
+            const meanHours = [{"x": 0, "y": 5.633333333}, { "x": 1, "y": 6.647058824}, {"x": 2, "y": 7}];
+            const meanCups = [{"x": 0, "y": 2.066666667}, { "x": 1, "y": 2.941176471}, {"x": 2, "y": 4.052631579}]
+
+            // Draw the line
+            svg.append("path")
+                .datum(meanHours)
+                .attr("fill", "none")
+                .attr("stroke", "#B4C7E7")
+                .attr("stroke-width", 4)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d["x"]) })
+                    .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+            svg.append("path")
+                .datum(meanCups)
+                .attr("fill", "none")
+                .attr("stroke", "#6039b8")
+                .attr("stroke-width", 4)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d["x"]) })
+                    .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+
+            svg.append("circle").attr("cx", width+10).attr("cy", height/4-15).attr("r", 6).style("fill", "#B4C7E7");
+            svg.append("circle").attr("cx", width+10).attr("cy", height/4+15).attr("r", 6).style("fill", "#6039b8");
+            svg.append("text").attr("x", width+30).attr("y", height/4-15).text("CodingHours").style("font-size", "15px").attr("alignment-baseline","middle");
+            svg.append("text").attr("x", width+30).attr("y", height/4+15).text("CoffeeCupsPerDay").style("font-size", "15px").attr("alignment-baseline","middle");
+        })
+    </code></pre>
+
+</div>
+</body>
+</html>
