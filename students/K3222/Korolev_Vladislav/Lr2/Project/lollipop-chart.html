@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Lollipop-chart</title>
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <style type="text/css">
+        body{
+            font-family: Arial;
+            margin-left: 50px;
+        }
+        .axis text {
+            font: 14px sans-serif;
+            font-weight: bold;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .line {
+            fill: none;
+        }
+
+        .dot {
+            fill: #fff;
+            stroke: #000;
+        }
+        #my_dataviz{
+            float: left;
+            display: inline-block;
+        }
+        #my_dataviz_second{
+            width: 860px;
+            display: inline-block;
+        }
+        #my_dataviz text,#my_dataviz_second text{
+            font-weight: bold;
+        }
+        span {
+            color: red;
+        }
+        ul li{
+            display: inline-block;
+            margin-right: 50px;
+        }
+        p {
+            font-size: 20px;
+        }
+        a:visited{
+            color: #3794de;
+        }
+        pre {
+            background: #f8f8f8;
+        }
+    </style>
+</head>
+<body>
+<h1>App Store и Google Play Store</h1>
+<p><b>Диаграммы:</b></p>
+<ul>
+    <li><a href="bar-chart.html">Bar-chart</a></li>
+    <li><a href="line-chart.html">Line-chart</a></li>
+    <li><a href="lollipop-chart.html"><span>Lollipop-chart</span></a></li>
+    <li><a href="circle-chart.html">Circle-chart</a></li>
+</ul>
+
+<h2>Lollipop-chart</h2>
+    <div id="my_dataviz"></div>
+    <div id="my_dataviz_second"></div>
+
+    <script type="text/javascript">
+        // set the dimensions and margins of the graph
+        var margin = {top: 10, right: 30, bottom: 90, left: 100},
+            width = 900 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
+            colors = ['#FF6633', '#FFB399', '#ff33ff', '#0d10db', '#00B3E6',
+                '#E6B333', '#3366E6', '#999966', '#20b820', '#B34D4D',
+                '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+                '#FF99E6', '#129984', '#FF1A66', '#E6331A', '#DB5860',
+                '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+                '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+                '#E666B3', '#33991A', '#CC9999'];
+            i = 0;
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/df_1.csv", function(data) {
+
+// X axis
+            var x = d3.scaleBand()
+                .range([ 0, width ])
+                .domain(data.map(function(d) { return d.Category; }))
+                .padding(1);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-35)")
+                .style("text-anchor", "end");
+
+// Add Y axis
+            var y = d3.scaleLinear()
+                .domain([0, 2000])
+                .range([ height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+// Lines
+            svg.selectAll("myline")
+                .data(data)
+                .enter()
+                .append("line")
+                .attr("x1", function(d) { return x(d.Category); })
+                .attr("x2", function(d) { return x(d.Category); })
+                .attr("y1", function(d) { return y(d.Counts); })
+                .attr("y2", y(0))
+                .attr("stroke-width", "3px")
+                .attr("stroke", function(d) { return colors[i++]; })
+
+// Circles
+            svg.selectAll("mycircle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", function(d) { return x(d.Category); })
+                .attr("cy", function(d) { return y(d.Counts); })
+                .attr("r", "6")
+                .style("fill", function(d) { if(i == 33) {i = 0;}return colors[i++]; })
+                .attr("stroke", function(d) { if(i == 33) {i = 0;}return colors[i++]; })
+                .on("mouseover", function () {
+                    tooltip.style("display", null);
+                }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 35;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.Counts);
+            });
+        })
+        const tooltip = svg.append("g").attr("class", "tooltip").style("display", "none");
+        tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+        tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "14px").attr("font-weight", "bold");
+
+
+        var svg_second = d3.select("#my_dataviz_second")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/df_1.csv", function(data) {
+
+// X axis
+            var x = d3.scaleBand()
+                .range([ 0, width ])
+                .domain(data.map(function(d) { return d.Category; }))
+                .padding(1);
+            svg_second.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-35)")
+                .style("text-anchor", "end");
+
+// Add Y axis
+            var y = d3.scaleLinear()
+                .domain([0, 90000000])
+                .range([ height, 0]);
+            svg_second.append("g")
+                .call(d3.axisLeft(y));
+
+// Lines
+            svg_second.selectAll("myline")
+                .data(data)
+                .enter()
+                .append("line")
+                .attr("x1", function(d) { return x(d.Category); })
+                .attr("x2", function(d) { return x(d.Category); })
+                .attr("y1", function(d) { return y(d.Installs); })
+                .attr("y2", y(0))
+                .attr("stroke-width", "15px")
+                .attr("stroke", function(d) { if(i == 33) {i = 0;}return colors[i++]; })
+                .on("mouseover", function () {
+                    tooltip_second.style("display", null);
+                }).on("mouseout", function () {
+                tooltip_second.style("display", "none");
+            }).on("mousemove", function (d) {
+                tooltip_second.select("text").text(d.Category + ": " + d.Installs).style("font-weight","200");
+                //tooltip_second.select("rect").attr("fill", colors[i-1]);
+            });
+        })
+        const tooltip_second = svg_second.append("g").attr("class", "tooltip").style("display", "none");
+        tooltip_second.attr("transform", "translate(" + 500 + "," + 50 + ")");
+        //tooltip_second.append("rect").attr("width", 10).attr("height", 10);
+        tooltip_second.append("text").attr("x", 50).attr("y", -7).attr("dy", "1.2em").style("text-anchor", "middle")
+            .attr("font-size", "18px").attr("font-family","Arial");
+
+    </script>
+
+
+
+    <p>
+        <b>Описание:</b> первая диграмма показывает количество приложений по категориям, сортированных по убыванию. Вторая диаграмма показывает кол-во загрузок приложений данных категорий. В результате, можно заметить что кол-во приложений той или иной категории никак не зависит от кол-ва загрузок(можно сказать популярности).
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        var margin = {top: 10, right: 30, bottom: 90, left: 100},
+            width = 900 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
+            colors = ['#FF6633', '#FFB399', '#ff33ff', '#0d10db', '#00B3E6',
+                '#E6B333', '#3366E6', '#999966', '#20b820', '#B34D4D',
+                '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+                '#FF99E6', '#129984', '#FF1A66', '#E6331A', '#DB5860',
+                '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+                '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+                '#E666B3', '#33991A', '#CC9999'];
+            i = 0;
+
+
+        var svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/df_1.csv", function(data) {
+
+
+            var x = d3.scaleBand()
+                .range([ 0, width ])
+                .domain(data.map(function(d) { return d.Category; }))
+                .padding(1);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-35)")
+                .style("text-anchor", "end");
+
+
+            var y = d3.scaleLinear()
+                .domain([0, 2000])
+                .range([ height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+
+            svg.selectAll("myline")
+                .data(data)
+                .enter()
+                .append("line")
+                .attr("x1", function(d) { return x(d.Category); })
+                .attr("x2", function(d) { return x(d.Category); })
+                .attr("y1", function(d) { return y(d.Counts); })
+                .attr("y2", y(0))
+                .attr("stroke-width", "3px")
+                .attr("stroke", function(d) { return colors[i++]; })
+
+
+            svg.selectAll("mycircle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", function(d) { return x(d.Category); })
+                .attr("cy", function(d) { return y(d.Counts); })
+                .attr("r", "6")
+                .style("fill", function(d) { if(i == 33) {i = 0;}return colors[i++]; })
+                .attr("stroke", function(d) { if(i == 33) {i = 0;}return colors[i++]; })
+                .on("mouseover", function () {
+                    tooltip.style("display", null);
+                }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 35;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.Counts);
+            });
+        })
+        const tooltip = svg.append("g").attr("class", "tooltip").style("display", "none");
+        tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+        tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "14px").attr("font-weight", "bold");
+
+
+        var svg_second = d3.select("#my_dataviz_second")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+
+        d3.csv("data/df_1.csv", function(data) {
+
+
+            var x = d3.scaleBand()
+                .range([ 0, width ])
+                .domain(data.map(function(d) { return d.Category; }))
+                .padding(1);
+            svg_second.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-35)")
+                .style("text-anchor", "end");
+
+
+            var y = d3.scaleLinear()
+                .domain([0, 90000000])
+                .range([ height, 0]);
+            svg_second.append("g")
+                .call(d3.axisLeft(y));
+
+
+            svg_second.selectAll("myline")
+                .data(data)
+                .enter()
+                .append("line")
+                .attr("x1", function(d) { return x(d.Category); })
+                .attr("x2", function(d) { return x(d.Category); })
+                .attr("y1", function(d) { return y(d.Installs); })
+                .attr("y2", y(0))
+                .attr("stroke-width", "15px")
+                .attr("stroke", function(d) { if(i == 33) {i = 0;}return colors[i++]; })
+                .on("mouseover", function () {
+                    tooltip_second.style("display", null);
+                }).on("mouseout", function () {
+                tooltip_second.style("display", "none");
+            }).on("mousemove", function (d) {
+                tooltip_second.select("text").text(d.Category + ": " + d.Installs).style("font-weight","200");
+            });
+        })
+        const tooltip_second = svg_second.append("g").attr("class", "tooltip").style("display", "none");
+        tooltip_second.attr("transform", "translate(" + 500 + "," + 50 + ")");
+        tooltip_second.append("text").attr("x", 50).attr("y", -7).attr("dy", "1.2em").style("text-anchor", "middle")
+            .attr("font-size", "18px").attr("font-family","Arial");
+    </code></pre>
+
+</div>
+</body>
+</html>

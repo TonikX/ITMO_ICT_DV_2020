@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Bar-chart</title>
+
+    <script src="js/d3.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        body{
+            margin-left: 50px;
+            font-family: Arial;
+        }
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        g.x.axis text{
+            transform: rotate(-30deg);
+            text-anchor: end !important;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .svg-containter {
+            margin-top: 50px;
+            max-width: 1400px;
+            height: 700px;
+        }
+        
+        #viz_pie{
+            position: absolute;
+            margin-left: 450px;
+            margin-top: 190px;
+        }
+        
+        .arc text {
+            font: 12px Arial;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+
+        .arc path {
+            stroke: #fff;
+        }
+        ul li{
+            display: inline-block;
+            margin-right: 50px;
+        }
+        p {
+            font-size: 20px;
+        }
+        span {
+            color: red;
+        }
+        a:visited{
+            color: #3794de;
+        }
+        pre {
+            background: #f8f8f8;
+        }
+    </style>
+</head>
+<body>
+    <div id="viz_pie"></div>
+    <h1>App Store и Google Play Store</h1>
+    <p><b>Диаграммы:</b></p>
+    <ul>
+        <li><a href="bar-chart.html"><span>Bar-chart</span></a></li>
+        <li><a href="line-chart.html">Line-chart</a></li>
+        <li><a href="lollipop-chart.html">Lollipop-chart</a></li>
+        <li><a href="circle-chart.html">Circle-chart</a></li>
+    </ul>
+
+    <h2>Bar-chart</h2>
+
+    <script type="text/javascript">
+        const margin = {top: 0, right: 100, bottom: 0, left: 10};
+        const width = 1400 - margin.left - margin.right, height = 600 - margin.top - margin.bottom;
+        const svg = d3.select("h2")
+            .append("div").attr("class", "svg-containter")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+        let data_pie = {a: 0, b: 0}
+        var sum_free = 0;
+        var sum_paid = 0;
+        d3.csv("data/df_2.csv", function (error, data) {
+
+            /**
+             * Преобразуем датасет в склееный массив
+             */
+            const dataset = d3.layout.stack()(["Free", "Paid"].map(function (genreCase) {
+                return data.map(function (d) {
+                    return {x: d.Genre, y: +d[genreCase]};
+                });
+            }));
+            for (i = 0; i < dataset[0].length; i++){
+                sum_free += dataset[0][i].y;
+                sum_paid += dataset[1][i].y;
+            }
+            data_pie.a = sum_free;
+            data_pie.b = sum_paid;
+
+            /**
+             * Строим бар-чарт
+             */
+            const x = d3.scale.ordinal()
+                .domain(dataset[0].map(function (d) {
+                    return d.x;
+                }))
+                .rangeRoundBands([30, width - 10], 0.03);
+
+
+
+            const y = d3.scale.linear()
+                .domain([0, d3.max(dataset, function (d) {
+                    return d3.max(d, function (d) {
+                        return d.y0 + d.y;
+                    });
+                })])
+                .range([height, 0]);
+
+            const colors = ["#028ffa", "#00e395"];
+
+            const yAxis = d3.svg.axis().scale(y).orient("left").ticks(10).tickSize(-width, 0, 0).tickFormat(function (d) {
+                return d
+            });
+
+            const xAxis = d3.svg.axis().scale(x).orient("bottom");
+
+            svg.append("g").attr("class", "y axis").attr("transform", "translate(" + 30 + ",0)").call(yAxis);
+
+            svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+
+
+
+            const groups = svg.selectAll("g.cost").data(dataset).enter().append("g").attr("class", "cost").style("fill", function (d, i) {
+                return colors[i];
+            });
+
+            const rect = groups.selectAll("rect").data(function (d) {
+                return d;
+            }).enter().append("rect").attr("x", function (d) {
+                return x(d.x);
+            }).attr("y", function (d) {
+                return y(d.y0 + d.y);
+            }).attr("height", function (d) {
+                return y(d.y0) - y(d.y0 + d.y);
+            }).attr("width", x.rangeBand()).on("mouseover", function () {
+                tooltip.style("display", null);
+            }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 25;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.y);
+            });
+
+            const legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function (d, i) {
+                    return "translate(30," + i * 19 + ")";
+                });
+
+            legend.append("rect").attr("x", width - 18).attr("width", 18).attr("height", 18).style("fill", function (d, i) {
+                return colors.slice().reverse()[i];
+            });
+
+            legend.append("text").attr("x", width + 5).attr("y", 9).attr("dy", ".35em").style("text-anchor", "start").text(function (d, i) {
+                switch (i) {
+                    case 0:
+                        return "Платные";
+                    case 1:
+                        return "Бесплатные";
+                }
+            });
+
+            const tooltip = svg.append("g").attr("class", "tooltip").style("display", "none");
+            tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+            tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "14px").attr("font-weight", "bold");
+
+
+        var width_pie = 960,
+            height_pie = 500,
+            radius = 140;
+
+        var color_pie = d3.scale.ordinal()
+            .range(["#00E395", "#028FFA"]);
+
+        var arc = d3.svg.arc()
+            .outerRadius(radius)
+            .innerRadius(0);
+
+        var labelArc = d3.svg.arc()
+            .outerRadius(radius - 80)
+            .innerRadius(radius - 80);
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) { return d.value; });
+        var data_ready = pie(d3.entries(data_pie));
+
+        var svg_pie = d3.select("#viz_pie").append("svg")
+            .attr("width", width_pie)
+            .attr("height", height_pie)
+            .append("g")
+            .attr("transform", "translate(" + width_pie / 2 + "," + height_pie / 2 + ")");
+
+            var g = svg_pie.selectAll(".arc")
+                .data(data_ready)
+                .enter().append("g")
+                .attr("class", "arc");
+
+            g.append("path")
+                .attr("d", arc)
+                .style("fill", function(d) { return color_pie(d.data.value); });
+
+            g.append("text")
+                .attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
+                .attr("dy", ".35em")
+                .text(function(d) { return d.data.value; });
+
+        function type(d) {
+            d.value = +d.value;
+            return d;
+        }
+        });
+
+    </script>
+
+
+    <p>
+        <b>Описание:</b> диаграмма показывает количество приложений каждого жанра и долю платных и бесплатных приложений в App Store.
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        const margin = {top: 0, right: 100, bottom: 0, left: 10};
+        const width = 1400 - margin.left - margin.right, height = 600 - margin.top - margin.bottom;
+        const svg = d3.select("h2")
+            .append("div").attr("class", "svg-containter")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+        let data_pie = {a: 0, b: 0}
+        var sum_free = 0;
+        var sum_paid = 0;
+        d3.csv("data/df_2.csv", function (error, data) {
+
+            /**
+             * Преобразуем датасет в склееный массив
+             */
+            const dataset = d3.layout.stack()(["Free", "Paid"].map(function (genreCase) {
+                return data.map(function (d) {
+                    return {x: d.Genre, y: +d[genreCase]};
+                });
+            }));
+            for (i = 0; i < dataset[0].length; i++){
+                sum_free += dataset[0][i].y;
+                sum_paid += dataset[1][i].y;
+            }
+            data_pie.a = sum_free;
+            data_pie.b = sum_paid;
+
+            /**
+             * Строим бар-чарт
+             */
+            const x = d3.scale.ordinal()
+                .domain(dataset[0].map(function (d) {
+                    return d.x;
+                }))
+                .rangeRoundBands([30, width - 10], 0.03);
+
+
+
+            const y = d3.scale.linear()
+                .domain([0, d3.max(dataset, function (d) {
+                    return d3.max(d, function (d) {
+                        return d.y0 + d.y;
+                    });
+                })])
+                .range([height, 0]);
+
+            const colors = ["#028ffa", "#00e395"];
+
+            const yAxis = d3.svg.axis().scale(y).orient("left").ticks(10).tickSize(-width, 0, 0).tickFormat(function (d) {
+                return d
+            });
+
+            const xAxis = d3.svg.axis().scale(x).orient("bottom");
+
+            svg.append("g").attr("class", "y axis").attr("transform", "translate(" + 30 + ",0)").call(yAxis);
+
+            svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+
+
+
+            const groups = svg.selectAll("g.cost").data(dataset).enter().append("g").attr("class", "cost").style("fill", function (d, i) {
+                return colors[i];
+            });
+
+            const rect = groups.selectAll("rect").data(function (d) {
+                return d;
+            }).enter().append("rect").attr("x", function (d) {
+                return x(d.x);
+            }).attr("y", function (d) {
+                return y(d.y0 + d.y);
+            }).attr("height", function (d) {
+                return y(d.y0) - y(d.y0 + d.y);
+            }).attr("width", x.rangeBand()).on("mouseover", function () {
+                tooltip.style("display", null);
+            }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 25;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.y);
+            });
+
+            const legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function (d, i) {
+                    return "translate(30," + i * 19 + ")";
+                });
+
+            legend.append("rect").attr("x", width - 18).attr("width", 18).attr("height", 18).style("fill", function (d, i) {
+                return colors.slice().reverse()[i];
+            });
+
+            legend.append("text").attr("x", width + 5).attr("y", 9).attr("dy", ".35em").style("text-anchor", "start").text(function (d, i) {
+                switch (i) {
+                    case 0:
+                        return "Платные";
+                    case 1:
+                        return "Бесплатные";
+                }
+            });
+
+            const tooltip = svg.append("g").attr("class", "tooltip").style("display", "none");
+            tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+            tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "14px").attr("font-weight", "bold");
+
+
+        var width_pie = 960,
+            height_pie = 500,
+            radius = 140;
+
+        var color_pie = d3.scale.ordinal()
+            .range(["#00E395", "#028FFA"]);
+
+        var arc = d3.svg.arc()
+            .outerRadius(radius)
+            .innerRadius(0);
+
+        var labelArc = d3.svg.arc()
+            .outerRadius(radius - 80)
+            .innerRadius(radius - 80);
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) { return d.value; });
+        var data_ready = pie(d3.entries(data_pie));
+
+        var svg_pie = d3.select("#viz_pie").append("svg")
+            .attr("width", width_pie)
+            .attr("height", height_pie)
+            .append("g")
+            .attr("transform", "translate(" + width_pie / 2 + "," + height_pie / 2 + ")");
+
+            var g = svg_pie.selectAll(".arc")
+                .data(data_ready)
+                .enter().append("g")
+                .attr("class", "arc");
+
+            g.append("path")
+                .attr("d", arc)
+                .style("fill", function(d) { return color_pie(d.data.value); });
+
+            g.append("text")
+                .attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
+                .attr("dy", ".35em")
+                .text(function(d) { return d.data.value; });
+
+        function type(d) {
+            d.value = +d.value;
+            return d;
+        }
+        });
+
+    </code></pre>
+
+</body>
+</html>
