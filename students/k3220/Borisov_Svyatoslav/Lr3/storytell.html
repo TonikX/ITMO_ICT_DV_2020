@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js</title>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 14px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="containter">   
+	<h1>Введение</h1>
+    <p>
+        В наше время, для многих людей YouTube стал неотъемлемой частью жизни. Количество пользователей YouTube по всему миру достигает практически 2х миллиардов, 
+		более того практически все события, происходящие в мире, так или иначе освещаются в YouTube. Учитывая это, можно предположить, что, проанализировав 
+		статистику ютуба можно справедливо оценивать и анализировать различные жизненные факторы и мировые события. Проще говоря YouTube это отражение того, 
+		что происходит в мире, и основываясь на данных YouTube, можно судить о положении вещей в реальной жизни.
+    </p>
+	
+	<p>
+		Мой датасет - Видео из американских трендов YouTube 2017-2018. Его название говорит само за себя. В этой базе данных содержатся все записи из американских трендов YouTube c ноября 2017 по ноябрь 2018 года. Такая большая база данных позволяет проводить с ней большое количество манипуляций и получать множество интересной статистики различного типа.
+    </p>
+	<h1>Статистика</h1>
+	
+	<h2>Количество просмотров</h2>
+	<p>
+		Что же мы можем узнать из статистики YouTube’а?
+	</p>
+	<p>
+		Например, по статистике просмотров по времени можно понять, что в определенный момент произошло какое-то резонансное событие (так как на каком-то ролике резко возросло количество просмотров)
+	</p>
+	<p>
+		Здесь изображен график просмотров с канала CNN - одно из крупнейших американских СМИ.
+	</p>
+	<iframe title="Просмотры YouTube канала CNN" aria-label="Interactive line chart" id="datawrapper-chart-fvowR" src="https://datawrapper.dwcdn.net/fvowR/2/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="619"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();</script>
+	<p>
+		На графике мы можем увидеть, что 25 марта 2018 года один из роликов набрал неожиданное большое количество просмотров(по сравнению со средним количеством просмотров на видео).
+	</p>
+	
+	<p>
+		 Узнав какое видео вышло в этот день, мы убедимся что произошло действительно резонансное событие - умер знаменитый физик Стивен Хокинг.
+	</p>
+	
+	<p>
+		 С другой стороны, используя данные о просмотрах, мы можем провести сравнение между какими-то каналами со схожей тематикой и понять какой из них популярнее.
+	</p>
+	<iframe title="Диаграмма просмотров среди крупных кинокомпаний" aria-label="chart" id="datawrapper-chart-lVuuD" src="https://datawrapper.dwcdn.net/lVuuD/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="720"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();</script>
+	
+	<p>
+		 На диаграмме изображено распределение просмотров с каналов грандов американских кинокомпаний.
+	</p>
+	<p>
+		 По понятно, что распределение весьма ровное но выделяется один лидер - Marvel.
+	</p>
+	<h2>Лайки</h2>
+	<p>
+		 Используя данные о лайках, мы можем узнать, что людям нравится больше.
+	</p>
+	<iframe title="Диаграмма суммарного количества лайков с каналов HBO и Netflix" aria-label="Bar Chart" id="datawrapper-chart-C4ADe" src="https://datawrapper.dwcdn.net/C4ADe/2/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="143"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();</script>
+	<p>
+		 На диаграмме изображено соотношение суммарного количества лайков с каналов американских грандов в индустрии стриминга фильмов и сериалов - HBO и Netflix.
+	</p>
+	<p>
+		 По ней мы можем понять, что в целом видео которые выпускают Netflix набирают значительно большей лайков, даже не смотря на то что ролики HBO набрали на 30 млн просмотров больше.
+	</p>
+	<iframe title="Диаграмма количества просмотров на каналах HBO и Netflix" aria-label="chart" id="datawrapper-chart-oguMw" src="https://datawrapper.dwcdn.net/oguMw/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="530"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();</script>
+	<h2>Комментарии</h2>
+	<p>
+		 А основываясь на количестве комментариев, легко понять, какие новости стали наиболее обсуждаемыми
+	</p>
+	<p>
+		 На диаграмме изображены видео, набравшие наибольшее число комментарвие на канале ESPN(самое популярное американское спортивное СМИ).
+	</p>
+	<iframe title="Диаграмма количества комментариев под видео на канале ESPN" aria-label="Bar Chart" id="datawrapper-chart-3nGl0" src="https://datawrapper.dwcdn.net/3nGl0/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="696"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();</script>
+	<p>
+		 По ней мы можем увидеть, что наиболее обсуждаемой стала новость даже не о спорте, а о провальном выступлении певицы Fergie на матче всех звезд NBA.
+	</p>
+	<h1>Заключение</h1>
+	<p>
+		 Здесь я лишь выделил лишь несколько основных принципов, так как база данных очень большая, по ней можно определить еще очень много интересной информации.
+	</p>
+	<p>
+		 Это была небольшая иллюстрация того, как пользуясь статистикой одной из крупнейших социальных сетей, можно узнать некие познавательные факты о отличительных чертах нашего общества, об особенностях его поведения и о его интересах.
+	</p>
+	
+	
+	
+	
+	
+	
+	
+	
+</div>
+</body>
+</html>

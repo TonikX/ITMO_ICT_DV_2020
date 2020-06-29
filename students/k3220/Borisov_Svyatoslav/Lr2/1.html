@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js</title>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 15px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+		
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+		
+        .svg-containter {
+            margin: 40px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+		
+		.axis{
+			margin:20px;
+		}
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js - US Youtube trends 2017-2018</h1>
+
+    <ul>
+        <li><a href="line-chart.html">Линейный график - Просмотры канала iJustine</a></li>
+        <li><a href="bar-chart.html">Столбчатая диаграмма - Вечерние шоу</a></li>
+		<li><a href="pie-chart.html">Круговая диаграмма - Тематика видео из трендов</a></li>
+		<li>Круговая диаграмма - Какой спорт популярнее?</li>
+		<li><a href="2.html">Столбчатая диаграмма - Топ по дизлайкам</a></li>
+		
+    </ul>
+
+    <h2>Круговая диаграмма - Какой спорт популярнее?</h2>
+
+    <script type="text/javascript">
+        var height = 600,
+            width = 800,
+            margin = 15;
+			
+        d3.csv("data/video.csv", function (error, data) {
+		
+		// Создаем массив с ключами - названиями каналов
+             nested = d3.nest()
+				.key(function (d) { return d.channel_title; })
+				.entries(data)
+		
+			console.log(nested);
+			console.log(nested[0].values[0].views);
+			
+			// Созадем массив для выборки записей с канала NFL и NBA
+			var sports = ["NFL", "NBA"];
+		
+			// Создаем массив для построения круговой диаграммы
+			var sportsarr = [
+			{name: "NFL", views: 0},
+			{name: "NBA", views: 0},
+			];
+			
+			var k = 0;
+			
+			// Заполняем массив, суммируя просмотры с обоих каналов
+			for (let i = 0; i < nested.length; i++)
+			{
+				if (sports.includes(nested[i].key))
+				{
+					sportsarr[k].name = nested[i].key;
+					var viewscount = 0;
+					for (let j = 0; j < nested[i].values.length; j++)
+					{
+						viewscount += parseInt(nested[i].values[j].views);
+					}
+					sportsarr[k].views = viewscount;
+					k++;
+				}
+			}
+			
+			var allviews = sportsarr[0].views + sportsarr[1].views;
+			// Добавляем пояснения в имена
+			sportsarr[0].name = "NFL - Американский футбол";
+			sportsarr[1].name = "NBA - Баскетбол";
+			
+			
+			console.log(sportsarr);
+			
+			// Задаем радиус с помощью констант
+			var radius = Math.min(width - 2 * margin, height- 2 * margin) / 2;
+			
+			// Задаем цвет, элемент арки с радиусом, диаграмму, а также svg и g элементы
+			var color = d3.scale.category10();
+		
+			var arc = d3.svg.arc()
+				.outerRadius(radius)
+				.innerRadius(0);
+				
+			var labelArc = d3.svg.arc()
+				.outerRadius(radius - 40)
+				.innerRadius(radius - 40)
+				
+			var pie = d3.layout.pie()
+				.sort(null)
+				.value(function(d) { return d.views;});
+		
+			var svg = d3.select("h2").append("svg")
+				.attr("class", "axis")
+				.attr("width", width)
+				.attr("height", height)
+				.append("g")
+				.attr("transform",
+					"translate(" +(width / 2) + "," + (height / 2 ) + ")");
+	    
+			var g = svg.selectAll(".arc")
+				.data(pie(sportsarr))
+				.enter().append("g")
+				.attr("class", "arc");
+		
+			g.append("path")
+				.attr("d", arc)
+				.style("fill", function(d) { return color(d.data.name); });
+
+			g.append("text")
+				.attr("transform", function(d) {
+					return "translate(" + arc.centroid(d) + ")"; })
+				.style("text-anchor", "middle")
+				.text(function(d) { return parseInt(d.data.views / 1000000) + " миллионов просмотров"; })
+				.attr("font-weight", "bold");
+			
+			var legendTable = d3.select("svg").append("g")
+				.attr("transform", "translate(0, " + margin + ")")
+				.attr("class", "legendTable");
+
+
+			// Создаем легенду для диаграммы
+			var legend = legendTable.selectAll(".legend")
+				.data(pie(sportsarr))
+				.enter().append("g")
+				.attr("class", "legend")
+				.attr("transform", function(d, i) {
+					return "translate(0, " + i * 40 + ")";
+				});
+
+			legend.append("rect")
+				.attr("x", width - 10)
+				.attr("y", 4)
+				.attr("width", 10)
+				.attr("height", 10)
+				.style("fill", function(d) { return color(d.data.name); });
+
+			legend.append("text")
+				.attr("x", width - 14)
+				.attr("y", 9)
+				.attr("dy", ".35em")
+				.style("text-anchor", "end")
+				.text(function(d) { return d.data.name; });
+	
+        });
+    </script>
+	<h2>Описание</h2>
+    <p>
+        На диаграмме изображено сравнение двух самых популярных видов спорта в Америке - футбола и баскетбола. Диаграмма построена на основе суммарного количества просмотров с трендовых видео 2017 - 2018 года, с каналов NBA - национальной баскетбольной ассоциации и NFL - национальной футбольной лиги.
+    </p>
+   
+
+</div>
+</body>
+</html>
