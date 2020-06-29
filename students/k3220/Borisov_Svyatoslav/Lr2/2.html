@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js</title>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 14px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js - US Youtube trends 2017-2018</h1>
+
+    <ul>
+        <li><a href="line-chart.html">Линейный график - Просмотры канала iJustine</a></li>
+        <li><a href="bar-chart.html">Столбчатая диаграмма - Вечерние шоу</a></li>
+		<li><a href="pie-chart.html">Круговая диаграмма - Тематика видео из трендов</a></li>
+		<li><a href="1.html">Круговая диаграмма - Какой спорт популярнее?</a></li>
+		<li>Столбчатая диаграмма - Топ по дизлайкам</li>
+		
+    </ul>
+
+    <h2>Столбчатая диаграмма - Кто набрал больше всего дизлайков?</h2>
+
+    <script type="text/javascript">
+        var height = 500,
+                width = 1000,
+                margin = 70;
+
+
+        d3.csv("data/video.csv", function (error, data) {
+
+			// Создаем массив с ключами - названием канала
+             nested = d3.nest()
+				.key(function (d) { return d.channel_title; })
+				.entries(data)
+				
+			console.log(nested);
+			
+			// Создаем массив для диаграммы
+			
+			var disarr = [
+			{name: "", dislikes: 0},
+			{name: "", dislikes: 0},
+			{name: "", dislikes: 0},
+			{name: "", dislikes: 0},
+			{name: "", dislikes: 0},
+			];
+			
+			var k = 0;
+			
+			var maxdis = 0;
+			var maxname = "";
+			
+			// Выявляем 5 каналов, набравших наибольшее количество дизлайков со всех видео и заполняем массив
+			
+			for (let i = 0; i < nested.length; i++)
+			{
+				if (nested[i].values.length >= 100)
+				{
+					dislikescount = 0;
+					for (let j = 0; j < nested[i].values.length; j++)
+					{
+						dislikescount += parseInt(nested[i].values[j].dislikes);
+					}
+					if (dislikescount > maxdis)
+					{
+						maxdis = dislikescount;
+						maxname = nested[i].key;
+					}
+				}
+			}
+			disarr[0].name = maxname;
+			disarr[0].dislikes = maxdis;
+			
+			
+			for (let i = 1; i < disarr.length; i++)
+			{
+				maxdis = 0;
+				maxname = "";
+				for (let j = 0; j < nested.length; j++)
+				{
+					if (nested[j].values.length >= 100)
+					{
+						dislikescount = 0;
+						for (let k = 0; k < nested[j].values.length; k++)
+						{
+							dislikescount += parseInt(nested[j].values[k].dislikes);
+						}
+						if ((dislikescount > maxdis) && (dislikescount < disarr[i-1].dislikes))
+						{
+							maxdis = dislikescount;
+							maxname = nested[i].key;
+						}
+					}
+				}
+				disarr[i].name = maxname;
+				disarr[i].dislikes = maxdis;
+			}
+			
+			
+			console.log(disarr);;
+			// Задаем оси
+			var color = d3.scale.category10();
+			
+			var xAxisLength = width - 2 * margin;
+			
+			var yAxisLength = height - 2 * margin+5;
+			
+			var xScale = d3.scale.ordinal()
+                .rangeRoundBands([0, xAxisLength + margin - 150], .6)
+                .domain(disarr.map(function(d) {return d.name; }));
+				
+			var yScale = d3.scale.linear()
+                .domain([0, 2000000]).range([yAxisLength, 0]);
+				
+			var svg = d3.select("h2").append("svg")
+                .attr("class", "axis")
+                .attr("width", width)
+                .attr("height", height);
+				
+			var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom");
+				
+			var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
+				
+			svg.append("g")
+                .attr("class", "x-axis")
+                .attr("transform",
+                    "translate(" + margin + "," + (height - margin + 5) + ")")
+                .call(xAxis);
+			
+			svg.append("g")
+                .attr("class", "y-axis")
+                .attr("transform",
+                    "translate(" + margin + "," + margin + ")")
+                .call(yAxis);
+				
+			 d3.selectAll("g.y-axis g.tick")
+                .append("line")
+                .classed("grid-line", true)
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", xAxisLength - 90)
+                .attr("y2", 0);
+
+			// Создаем элемент g с набором столбиков
+            svg.append("g")
+                .attr("transform",
+                    "translate(" + margin + ", 0)")
+                .selectAll(".bar")
+                .data(disarr)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return xScale(d.name); })
+                .attr("width", xScale.rangeBand())
+                .attr("y", function(d) { return yScale(d.dislikes); })
+                .attr("height", function(d) { return height - yScale(d.dislikes)-65; })
+                .attr("fill", function(d) { return color(d.name); });
+	
+        });
+    </script>
+	<h2>Описание</h2>
+    <p>
+        На диаграмме изображена подборка популярных американских YouTube каналов, набравших наибольшее количество дизлайков на трендовых видео за 2017 - 2018 год. Анализ дизлайков производился по каналам, видео которых встречались в трендах чаще всего(которые имеют больше 100 записей в бд). Но оси Y отображено суммарное количество дизлайков, со всех трендовых видео данного канала в период с конца 2017 по конец 2018 года.
+    </p>
+   
+
+</div>
+</body>
+</html>

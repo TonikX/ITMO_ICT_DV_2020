@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js</title>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+		
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+		
+        .svg-containter {
+            margin: 40px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+		
+		.axis{
+			margin:20px;
+		}
+    </style>
+</head>
+<body>
+<div class="containter">
+    <h1>D3.js - US Youtube trends 2017-2018</h1>
+
+    <ul>
+        <li><a href="line-chart.html">Линейный график - Просмотры канала iJustine</a></li>
+        <li><a href="bar-chart.html">Столбчатая диаграмма - Вечерние шоу</a></li>
+		<li>Круговая диаграмма - Тематика видео из трендов</li>
+		<li><a href="1.html">Круговая диаграмма - Какой спорт популярнее?</a></li>
+		<li><a href="2.html">Столбчатая диаграмма - Топ по дизлайкам</a></li>
+    </ul>
+	<h2>Круговая диаграмма - тематика трендовых видео</h2>
+    <script type="text/javascript">
+	d3.csv('data/video.csv', function (data) {
+		// Задаем константы
+		var height = 600,
+            width = 800,
+            margin = 15;
+		
+		console.log(data);
+		
+		// Создаем массив, отсортированный по количеству записей, с ключем - названием канала
+        nested = d3.nest()
+            .key(function (d) { return d.channel_title; })
+			.rollup(function(a){return a.length;})
+            .entries(data)
+			.sort(function(a, b){ return d3.descending(a.values, b.values); })
+		
+		console.log(nested);
+		var allcount = 0;
+		// Высчитаваем общее количество записей, среди элементов с 100+ записями
+		for (let i = 0; i < nested.length; i++)
+		{
+			if (nested[i].values >= 100)
+				allcount += nested[i].values;
+		}
+		
+		console.log(allcount);
+		
+		// Создаем массивы категорий, заполняемых соответсвующими названиями каналов для отбора
+		var shows = ["The Tonight Show Starring Jimmy Fallon", "TheEllenShow", "The Late Show with Stephen Colbert", "Jimmy Kimmel Live", "Late Night with Seth Meyers", "Saturday Night Live", "The Late Late Show with James Corden", "The Graham Norton Show", "Team Coco"];
+		var media = ["ESPN", "Vox", "CNN", "WIRED", "BuzzFeedVideo", "Vanity Fair", "Vogue", "ABC News", "Washington Post", "Complex", "E! Entertainment", "NBC News", "Inside Edition", "TODAY"];
+		var fun = ["Screen Junkies", "INSIDER", "TED-Ed", "CollegeHumor", "FBE", "Life Noggin", "jacksfilms", "The King of Random", "SciShow", "Smosh", "Dude Perfect", "Great Big Story", "AsapSCIENCE", "The Slow Mo Guys", "CrazyRussianHacker", "Simon's Cat", "Kurzgesagt – In a Nutshell", "Binging with Babish", "NikkieTutorials", "CinemaSins", "The Film Theorists"];
+		var cooking = ["HellthyJunkFood", "First We Feast", "Bon Appétit", "Tasty", "Good Mythical Morning", "You Suck At Cooking"];
+		var cinema = ["Netflix", "Warner Bros. Pictures", "20th Century Fox", "Marvel Entertainment", "Star Wars", "Universal Pictures"];
+		
+		// Счетчики записей для категорий
+		var showcount = 0,
+			mediacount = 0,
+			funcount = 0,
+			cookingcount = 0,
+			cinemacount = 0,
+			others = 0;
+		
+		// Высчитываем количество записей для каждой категории
+		for (let i = 0; i < nested.length; i++)
+		{
+			if (nested[i].values >= 100)
+			{
+				if (shows.includes(nested[i].key)) showcount += nested[i].values;
+				if (media.includes(nested[i].key)) mediacount += nested[i].values;
+				if (fun.includes(nested[i].key)) funcount += nested[i].values;
+				if (cooking.includes(nested[i].key)) cookingcount += nested[i].values;
+				if (cinema.includes(nested[i].key)) cinemacount += nested[i].values;	
+			}
+		}
+		
+		others = allcount - showcount - mediacount - funcount - cookingcount - cinemacount;
+		
+		console.log(others);
+		
+		// Создаем массив для круговой диаграммы
+		var piearr = [
+		{key: "Late night show", values: parseInt(showcount / allcount * 100 + 1) }, 
+		{key: "СМИ", values: parseInt(mediacount / allcount * 100 + 1) }, 
+		{key: "Развлекательные видео", values: parseInt(funcount / allcount * 100) }, 
+		{key: "Кулинария", values: parseInt(cookingcount / allcount * 100 + 1) }, 
+		{key: "Кинематограф", values: parseInt(cinemacount / allcount * 100) }, 
+		{key: "Остальные", values: parseInt(others / allcount * 100) } ];
+		
+		
+		// Задаем радиус
+		var radius = Math.min(width - 2 * margin, height- 2 * margin) / 2;
+		
+		var color = d3.scale.category10();
+		
+		// Задаем элемент арки с радиусом
+		var arc = d3.svg.arc()
+            .outerRadius(radius)
+            .innerRadius(0);
+				
+		var labelArc = d3.svg.arc()
+			.outerRadius(radius - 40)
+			.innerRadius(radius - 40)
+		
+		// Создаем круговую диаграмму и svg элемент
+		var pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) { return d.values;});
+		
+		var svg = d3.select("h2").append("svg")
+			.attr("class", "axis")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform",
+                "translate(" +(width / 2) + "," + (height / 2 ) + ")");
+	    
+        var g = svg.selectAll(".arc")
+            .data(pie(piearr))
+            .enter().append("g")
+            .attr("class", "arc");
+		
+        g.append("path")
+            .attr("d", arc)
+            .style("fill", function(d) { return color(d.data.key); });
+
+        g.append("text")
+            .attr("transform", function(d) {
+                return "translate(" + arc.centroid(d) + ")"; })
+            .style("text-anchor", "middle")
+            .text(function(d) { return d.data.values + "%"; })
+            .attr("font-weight", "bold");
+		
+		
+		// Создаем и отрисовываем легенду для диаграммы
+		var legendTable = d3.select("svg").append("g")
+            .attr("transform", "translate(0, " + margin + ")")
+            .attr("class", "legendTable");
+
+        var legend = legendTable.selectAll(".legend")
+            .data(pie(piearr))
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) {
+                return "translate(0, " + i * 40 + ")";
+            });
+
+        legend.append("rect")
+            .attr("x", width - 10)
+            .attr("y", 4)
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", function(d) { return color(d.data.key); });
+
+        legend.append("text")
+            .attr("x", width - 14)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) { return d.data.key; });
+				
+        });
+		
+    </script>
+	<h2>Описание</h2>
+    <p>
+        На диаграмме представлено распределение трендовых видео по тематике. Были отобраны те каналы, видео которых чаще всего попадали в тренды (имеют более 100 записей в базе данных). Затем, были сформированы определенные категории (Развлекательные видео, кинематограф, кулинария...) и выбранные ранее каналы были распределены по этим категориям. Число на графике - доля записей этой категории от общего числа записей в подборке.
+    </p>
+
+
+</div>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js</title>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js - US Youtube trends 2017-2018</h1>
+
+    <ul>
+        <li><a href="line-chart.html">Линейный график - Просмотры канала iJustine</a></li>
+        <li>Столбчатая диаграмма - Вечерние шоу</li>
+		<li><a href="pie-chart.html">Круговая диаграмма - Тематика видео из трендов</a></li>
+		<li><a href="1.html">Круговая диаграмма - Какой спорт популярнее?</a></li>
+		<li><a href="2.html">Столбчатая диаграмма - Топ по дизлайкам</a></li>
+		
+    </ul>
+
+    <h2>Столбчатая диаграмма - какое вечернее шоу нравится больше всего?</h2>
+
+    <script type="text/javascript">
+        var height = 650,
+                width = 1100,
+                margin = 67.5;
+
+
+        d3.csv("data/video.csv", function (error, data) {
+
+            // Создаем массив данных, ключ - название канала
+			
+             nested = d3.nest()
+				.key(function (d) { return d.channel_title; })
+				.entries(data)
+				
+			
+			console.log(nested);
+			console.log(nested[0].values[0].views);
+			
+			// Создаем массив шоу для отбора
+			
+			var shows = ["The Tonight Show Starring Jimmy Fallon", "The Late Show with Stephen Colbert", "Jimmy Kimmel Live", "Saturday Night Live", "The Late Late Show with James Corden", "The Graham Norton Show"];
+		
+			// Создаем массив для диаграммы
+			
+			var showarr = [
+			{name: "The Tonight Show Starring Jimmy Fallon", views: 0, likes: 0, dislikes: 0},
+			{name: "The Late Show with Stephen Colbert", views: 0, likes: 0, dislikes: 0},
+			{name: "Jimmy Kimmel Live", views: 0, likes: 0, dislikes: 0},
+			{name: "Saturday Night Live", views: 0, likes: 0, dislikes: 0},
+			{name: "The Late Late Show with James Corden", views: 0, likes: 0, dislikes: 0},
+			{name: "The Graham Norton Show", views: 0, likes: 0, dislikes: 0},
+			];
+			
+			
+			// Заполняем массив для диаграммы
+			var k = 0;
+
+			for (let i = 0; i < nested.length; i++)
+			{
+				if (nested[i].values.length >= 100)
+				{
+					if (shows.includes(nested[i].key))
+					{
+						showarr[k].name = nested[i].key;
+						var viewscount = 0, likescount = 0, dislikescount = 0;
+						for (let j = 0; j < nested[i].values.length; j++)
+						{
+							viewscount += parseInt(nested[i].values[j].views);
+							likescount += parseInt(nested[i].values[j].likes);
+							dislikescount += parseInt(nested[i].values[j].dislikes);
+						}
+						showarr[k].views = viewscount;
+						showarr[k].likes = likescount;
+						showarr[k].dislikes = dislikescount;
+						k++;
+					}
+				}
+			}
+			
+			// Изменяем имена на более удобные
+			for (let i = 0; i < showarr.length; i++)
+			{
+				if(showarr[i].name.includes("Jimmy Fallon")) showarr[i].name = "Jimmy Fallon show";
+				if(showarr[i].name.includes("Stephen Colbert")) showarr[i].name = "Stephen Colbert show";
+				if(showarr[i].name.includes("James Corden")) showarr[i].name = "James Corden show";
+				if(showarr[i].name.includes("Graham Norton")) showarr[i].name = "Graham Norton show";
+			}
+			
+			
+			
+			console.log(showarr);
+			console.log(shows.map);
+			
+			// Устанавливаем оси
+			var color = d3.scale.category10();
+			
+			var xAxisLength = width - 2 * margin;
+			
+			var yAxisLength = height - 2 * margin+5;
+			
+			var xScale = d3.scale.ordinal()
+                .rangeRoundBands([0, xAxisLength + margin - 150], .6)
+                .domain(showarr.map(function(d) {return d.name; }));
+				
+			var yScale = d3.scale.linear()
+                .domain([0, 11000000]).range([yAxisLength, 0]);
+				
+			var svg = d3.select("h2").append("svg")
+                .attr("class", "axis")
+                .attr("width", width)
+                .attr("height", height);
+				
+			var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom");
+				
+			var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
+			
+			// Отрисовываем оси и график
+			svg.append("g")
+                .attr("class", "x-axis")
+                .attr("transform",
+                    "translate(" + margin + "," + (height - margin + 5) + ")")
+                .call(xAxis);
+			
+			svg.append("g")
+                .attr("class", "y-axis")
+                .attr("transform",
+                    "translate(" + margin + "," + margin + ")")
+                .call(yAxis);
+				
+			 d3.selectAll("g.y-axis g.tick")
+                .append("line")
+                .classed("grid-line", true)
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", xAxisLength - 90)
+                .attr("y2", 0);
+
+			// Создаем элемент g с набором столбиков
+            svg.append("g")
+                .attr("transform",
+                    "translate(" + margin + ", 0)")
+                .selectAll(".bar")
+                .data(showarr)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return xScale(d.name); })
+                .attr("width", xScale.rangeBand())
+                .attr("y", function(d) { return yScale(d.likes); })
+                .attr("height", function(d) { return height - yScale(d.likes)-62; })
+                .attr("fill", function(d) { return color(d.name); });
+	
+        });
+    </script>
+	<h2>Описание</h2>
+    <p>
+        На диаграмме изображено сравнение вечерних шоу по количеству лайков с видео на их YouTube каналах. Но оси Y отображено суммарное количество лайков, со всех трендовых видео данного шоу в период с конца 2017 по конец 2018 года.
+    </p>
+   
+
+</div>
+</body>
+</html>
