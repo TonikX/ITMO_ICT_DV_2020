@@ -1,0 +1,55 @@
+text {
+    font-family: arial;
+    font-size: 12px;
+}
+
+path.line {
+    fill: none;
+    stroke: #ff9044;
+    stroke-width: 3px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: slategray;
+    shape-rendering: crispEdges;
+}
+
+.focus circle {
+    fill: none;
+    stroke: steelblue;
+}
+
+.containter {
+    margin: auto;
+    max-width: 1128px;
+}
+
+.svg-containter {
+    margin: 20px auto;
+    max-width: 1128px;
+    height: 500px;
+}
+
+.tooltip {
+    fill: white;
+    stroke: #000;
+}
+
+.tooltip-date, .tooltip-likes {
+    font-weight: bold;
+}
+
+.overlay {
+    fill: none;
+    pointer-events: all;
+}
+
+.focus circle {
+    fill: steelblue;
+}
+
+.focus text {
+    font-size: 14px;
+}

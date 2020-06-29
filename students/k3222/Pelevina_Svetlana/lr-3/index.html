@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="containter">
+    <h1>Статистика опубликованных книг с 1900 по 2020 год </h1>
+    <p>
+        Источник: <a href="https://www.kaggle.com/jealousleopard/goodreadsbooks" target="_blank">Kaggle - Good reads books</a>
+    </p>
+    <br>
+    <p>
+        На графике представлена зависимость количества книг, выпущенных за год соответственно от года.         На графике заметно, что до 1970 года книг практически не выпускалось, с 1970 по 2000 количество постепенно увеличивается, в 2006 - пик количества выпущенных книг. Далее же произошел резкий спад.
+
+    </p>
+    <iframe title="Количество выпущенных книг с 1900-2020" aria-label="Interactive area chart" id="datawrapper-chart-ODfdx" src="https://datawrapper.dwcdn.net/ODfdx/2/" scrolling="no" frameborder="0" style="width: 0; padding-left: 150px; padding-right: 150px;min-width: 70% !important; border: none;" height="400"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+    <p>
+        Далее рассматривается книги выпущенные с 2010 по 2020.
+        Я решила проверить теорию, о прямой зависимости количество отзывов от 0 до 5 от количества текстовых отзывов.
+        На графике видно, что зависимость практически прямая, но есть книги, которые вызвали больший диссонанс.
+        В качестве более верного показателя популярности книги я решила выбрать количество тектовых отзывов.
+    </p>
+
+    <iframe title="Количество поставленных оценок от количества текстовых отзывов" aria-label="Interactive line chart" id="datawrapper-chart-EwAFH" src="https://datawrapper.dwcdn.net/EwAFH/2/" scrolling="no" frameborder="0" style="width: 0; padding-left: 150px; padding-right: 150px;min-width: 70% !important; border: none;" height="400"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+    <p>
+        Ниже представлена зависимость среднего рейтинга от количетсва страниц. Размер круга говорит о популярности книги. Большинство книг имеют количество страниц до 500, в том числе сюда входят большинство книг с плохим средним рейтингом.
+        Также видно, что книг с рейтингом ниже 3 нет. Книги с количеством книг более 500 в среднем имеют высокий средний рейтинг.
+    </p>
+    <iframe title="Средний рейтинг от количества страниц" aria-label="chart" id="datawrapper-chart-MtOA8" src="https://datawrapper.dwcdn.net/MtOA8/2/" scrolling="no" frameborder="0" style="width: 0;padding-left: 100px; padding-right: 150px; min-width: 80% !important; border: none;" height="400"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+    <p>
+        Ниже представлен средний рейтинг издательств.
+    </p>
+    <iframe title="Рейтинг издательств" aria-label="Bar Chart" id="datawrapper-chart-ahl2W" src="https://datawrapper.dwcdn.net/ahl2W/2/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="3420"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+
+
+</div>
+
+</body>
+</html>
