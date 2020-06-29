@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<title> BMW pricing challenge </title>
+</head>
+<body>
+	<div class="container text-center mt-3" style="width: 900px;">
+		<h2 class="text-primary", align="center"> Дата сторителлинг по датасету с аукциона продажи автомобилей BMW </h2><br>
+		<span style="font-size: 12px;"><i><center> Источник данных: <a href="https://www.kaggle.com/danielkyrka/bmw-pricing-challenge#bmw_pricing_challenge.csv"> BMW pricing challenge </a></center></i></span><hr>
+        <p class="lead" align="justify">
+			Предоставленные данные состоят из почти 5000 реальных автомобилей BMW, которые были проданы на аукционе b2b в 2018 году. Цена, указанная в таблице, является самой высокой ставкой, которая была достигнута в ходе аукциона. Оценка стоимости подержанного автомобиля является одной из основных повседневных задач в автомобильном бизнесе, поэтому визуализация этих данных приходится для этой задачи как нельзя кстати. Она наглядно позволит оценить стоимость автомобилей в данном датасете, а сторителлинг упростит этот процесс.
+        </p><hr>
+        <p class="lead" align="justify">
+			Конечно, перед оценкой стоимости автомобилей, проданных на аукционе хочется подумать над вопросом: а от каких же факторов может зависеть стоимость автомобиля? Очевидно, что этими факторами будут являться пробег, мощность и год выпуска автомобиля. Кроме того, в таблице предоставляются данные по дополнительным опциям к автомобилям, зависимость которых на стоимость мы также попробуем проследить. Итак, рассмотрим график зависимости цены автомобиля от пройденного пробега. 
+        </p>
+        <iframe title="Точечный график зависимости цены автомобиля от его пробега" aria-label="chart" id="datawrapper-chart-Gdta1" src="https://datawrapper.dwcdn.net/Gdta1/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="450"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+		</script><br>
+		<p class="lead" align="justify">
+			Из данного графика по скоплениям точек мы видим, что цена имеет тенценцию к снижению с увеличением пробега автомобиля, что является весьма логичным фактом. Значит, соответственно, чем меньше пробег автомобиля, тем дороже его стоимость. Кроме того, на данном графике, как можно заметить, верхнюю сторону "треугольника концентрации точек" занимают автомобили с довольно высокими показателями мощности.
+		</p><hr>
+		<p class="lead" align="justify">
+			Рассмотрим второй фактор, от которого, как мы предполагаем, должна зависеть цена автомобиля. Обратимся к гистограмме зависимости цены от мощности автомобиля, ведь, как говорится, за лошадиные силы надо платить.
+		</p>
+		<iframe title="Гистограмма зависимости средней цены от мощности" aria-label="chart" id="datawrapper-chart-13l6L" src="https://datawrapper.dwcdn.net/13l6L/2/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="700"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+		</script><br>
+		<p class="lead" align="justify">
+			На данной гистограмме мощность была разделена на некоторые диапазоны, для каждого из которых была посчитана средняя стоимость автомобилей из данного диапазона мощности. Как мы видим, общий принцип зависимости стоимости от мощности - с увеличением лошадиных сил увиличивается и цена. Обратим внимание на столбец со значением мощности от 0 до 50 лошадиных сил, потому что, как видно из гистограммы, данный столбец выше столбца со средней стоимостью более мощных автомобилей.
+		</p><hr>
+		<p class="lead" align="justify">
+			Для более детального исследования зависимости цены от мощности, обратимся также к анализу типов топлива, которые используются автомобилями.  
+		</p>
+		<iframe title="Зависимость средней цены от мощности для дизельных автомобилей" aria-label="Dot Plot" id="datawrapper-chart-y9NDA" src="https://datawrapper.dwcdn.net/y9NDA/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="268"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+		</script><br>
+		<iframe title="Зависимость средней цены от мощности для бензиновых автомобилей" aria-label="Dot Plot" id="datawrapper-chart-AWBvB" src="https://datawrapper.dwcdn.net/AWBvB/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="268"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+		</script><br>
+		<iframe title="Зависимость средней цены от мощности для гибридных автомобилей" aria-label="Dot Plot" id="datawrapper-chart-bMPci" src="https://datawrapper.dwcdn.net/bMPci/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="268"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+		</script><br>
+		<iframe title="Зависимость средней цены от мощности для электромобилей" aria-label="Dot Plot" id="datawrapper-chart-sqrov" src="https://datawrapper.dwcdn.net/sqrov/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="268"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+		</script><br>
+		<p class="lead" align="justify">
+			Данные точечные графики являются аналогом гистограммы, но для обозначения средней цены для определенного диапазона значений мощности используется не высота столбца, а отдаленность точки от нулевого значения. Итак, нас интересует диапазон значений мощности от 0 до 50, который не имеет нулевого значения средней цены автомобилей из него. Из всех четырех точечных графиков можно найти лишь одну такую не нулевую точку - на графике зависимости средней цены от мощности для гибридных автомобилей. Из этго более детального исследования следует, что не смотря на свою небольшую мощность двигателя, автомобили с гибридным типом двигателя стоят дороже остальных (видимо, из-за более сложного устройства двигателя таких автомобилей).
+			Кроме того, дополнительно из данных точечных графиков по типам топлива можно отметить, что самыми дорогими автомобилями, проданными на аукционе, были гибридные автомобили, мощность которых находилась в диапазоне от 150 до 200 лошадиных сил.
+		</p><hr>
+		<p class="lead" align="justify">
+			Проверим следующий фактор, от которого зависит цена на автомобиль - год выпуска машины. Для этого исследуем следующую гистограмму.
+		</p>
+		<iframe title="Зависимость цены от года выпуска автомобиля" aria-label="Bar Chart" id="datawrapper-chart-45Crs" src="https://datawrapper.dwcdn.net/45Crs/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="509"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+		</script><br>
+		<p class="lead" align="justify">
+			Отсюда мы видим, что чем старше автомобиль, тем меньше его стоимость. Конечно, эта зависимость прослеживается не для всех годов выпуска(например, средняя цена на автомобили 2016 года выше, чем  на машины 2017 года). Мы можем лишь предположить, что автомобили 2016 года выпуска, которые были проданы на аукционе, обладали другими факторами, которые могли положительно повлиять на средню цену для данного года выпуска.
+		</p><hr>
+		<p class="lead" align="justify">
+			Итак, последний фактор, который был взят для рассмотрения зависимости средней цены автомобиля - количество установленных дополнительных опций. Рассмотрим последнюю гистограмму нашего исследования.
+		</p>
+		<iframe title="Зависимость цены от количества дополнительных опций, которыми оснащены автомобили" aria-label="chart" id="datawrapper-chart-jUvKa" src="https://datawrapper.dwcdn.net/jUvKa/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="562"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+		</script><br>
+		<p class="lead" align="justify">
+			В данном случае получаются снова логические выводы: общая тенценция - чем больше опций, тем выше цена проданного автомобиля. Конечно, есть столбец, который говорит, что с двумя опциями машины в среднем дешевле, чем с одной, но разница между данными столбцами минимальна, а также это можно списать на то, что неизвестны сами опции, на которые могут отличаться автомобили, ведь логично предположить, что цена на разные опции может отличаться.
+		</p><hr>
+		<p class="lead" align="justify">
+			Подводя итоги данного исследования, можно с уверенностью сказать, что цена проданных на аукционе авомобилей увеличивалась при: уменьшении пробега, увеличении мощности, увеличении года выпуска, увеличении количества установленных опций. Кроме того, мог влиять на стоимость и тип топлива автомобиля.
+		</p>>
+	</div>
+</body>
+</html>
