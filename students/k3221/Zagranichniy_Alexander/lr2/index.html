@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Визуализация данных</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style type="text/css">
+        .header {
+            padding: 0 40px 10px;
+            background-color: #eee;
+        }
+        .header>h1 {
+            text-align: center;
+        }
+        .header>p  {
+            text-align: justify;
+        }
+
+        body {
+            max-height: 100vh;
+            overflow-y: scroll;
+            -ms-overflow-style: none;
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chart {
+            border: 2px solid #e7e7e7;
+            margin: 20px 0;
+            border-radius: 10px;
+            height: 664px;
+            overflow: hidden;
+            transition: height .3s linear;
+        }
+        .chart.hidden {
+            height: 38px;
+        }
+
+        .chart>h2 {
+            display: block;
+            position: relative;
+            padding: 0 10px;
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .chart>h2>.after {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+            color: #777;
+            transform: rotate(180deg);
+            transition: transform .3s linear;
+            opacity: 0.5;
+        }
+        .chart>h2>.after:hover {
+            opacity: 0.75;
+        }
+
+        .chart>h2>.after.closed {
+            transform: rotate(0);
+        }
+
+        .chart-menu {
+            display: -webkit-flex;
+            display: -moz-flex;
+            display: -ms-flex;
+            display: -o-flex;
+            display: flex;
+            -webkit-flex-direction: row;
+            -moz-flex-direction: row;
+            -ms-flex-direction: row;
+            -o-flex-direction: row;
+            flex-direction: row;
+            background-color: #eee;
+        }
+        .chart-menu>div {
+            width: 50%;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #555;
+        }
+        .chart-menu>div:hover {
+            background-color: #e7e7e7;
+        }
+        .chart-menu>div.active {
+            background-color: #f8f8f8;
+        }
+
+        .chart-block {
+            width: 100%;
+            height: 520px;
+        }
+        .chart-block.hidden {
+            display: none;
+        }
+
+        .chart-block.code {
+            height: 540px;
+        }
+        .chart-block.code pre {
+            overflow-y: scroll;
+            overflow-x: auto;
+            max-height: 100%;
+        }
+        .chart-block.code pre::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        .chart-block.code pre::-webkit-scrollbar-track {
+            background-color: #ccc;
+            border-radius: 2px;
+        }
+        .chart-block.code pre::-webkit-scrollbar-thumb {
+            background-color: #acacac;
+            border-radius: 2px;
+        }
+
+        .chart-description {
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+        }
+
+        .line-chart-selector {
+            position: absolute;
+            top: -15px;
+            left: 48px;
+        }
+
+        .line-chart-select {
+            display: inline;
+            cursor: pointer;
+            color: #90e0ef;
+            margin: 0 10px;
+        }
+        .line-chart-select:hover {
+            color: #0077b6;
+        }
+
+        .line-chart-select.active {
+            color: #0077b6;
+        }
+
+        #maps-chart g g.arc:nth-child(1), #maps-chart g g.arc:nth-child(2) {
+            cursor: pointer;
+        }
+
+        #maps-chart path, #maps-chart text, #bar-chart rect, #line-chart circle {
+            transition: fill .3s linear;
+        }
+
+        #hs-chart circle {
+            transition: stroke .3s linear;
+        }
+
+        #hs-chart circle:hover {
+            stroke: #0077b6;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .tick line {
+            stroke: slategray;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .svg-containter {
+            height: 500px;
+            margin-top: 20px;
+        }
+
+        #bar-chart rect:hover {
+            fill: #004B85;
+        }
+
+        #hs-opacity {
+            position: absolute;
+            top: -10px;
+            left: 60px;
+        }
+        #hs-radius {
+            position: absolute;
+            top: -10px;
+            left: 340px;
+        }
+        input.hs-range {
+            -webkit-appearance: none;
+            margin: 10px 0;
+            width: 200px;
+        }
+        input.hs-range:focus {
+            outline: none;
+        }
+        input.hs-range::-webkit-slider-runnable-track {
+            width: 200px;
+            height: 6.8px;
+            cursor: pointer;
+            animate: 0.2s;
+            box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+            background: #eee;
+            border-radius: 25px;
+            border: 0px solid #000101;
+        }
+        input.hs-range::-webkit-slider-thumb {
+            box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+            border: 0px solid #000000;
+            height: 13px;
+            width: 29px;
+            border-radius: 7px;
+            background: #90E0EF;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -3.6px;
+        }
+        input.hs-range:focus::-webkit-slider-runnable-track {
+            background: #eee;
+        }
+
+        .hs-range-span {
+            color: #90e0ef;
+            font-size: 20px;
+            display: block;
+            position: absolute;
+            top: -15px;
+        }
+
+        #hs-opacity-span {
+            left: 265px;
+        }
+
+        #hs-radius-span {
+            left: 545px;
+        }
+
+        #hs-reload {
+            position: absolute;
+            top: -10px;
+            left: 580px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <h1>Лабораторная работа №2 Заграничного Александра (гр. К3221)</h1>
+    <p>В лабораторной работе №1 я обработал данные своих матчей и сделал несколько гипотез на основе получившихся 1948 матчах. В этой лабораторной работе я продемонстрирую несколько статистических графиков и диаграмм, с помощью которых можно наглядно рассмотреть всю статистику о вышеупомянутых матчах.</p>
+</header>
+
+<div class="container">
+    <div class="chart hidden">
+        <h2>Карты<div class="after">&#9660;</div></h2>
+        <div class="chart-menu">
+            <div class="active">Диаграмма</div>
+            <div>Код</div>
+        </div>
+        <div class="chart-block" id="maps-chart"></div>
+        <div class="chart-block code hidden">
+                <pre><code>
+    const data_source = 'data/data.csv';
+
+    const margin = {top: 20, right: 20, bottom: 20, left: 20};
+    const width = $('.chart-block').width() - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+
+
+    var svg1 = d3.select("#maps-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        var results = d3.nest().key(d => d.Map).rollup(v => v.length)
+            .entries(data).sort((a, b) => d3.descending(a.value, b.value))
+            .map(d => ({Map: d.key, Matches: d.value}));
+        var max = Math.max.apply(Math, results.map(d => d.Matches)), maps = [];
+
+        for (let i in results) {
+            maps.push([
+                {Map: results[i].Map, Matches: results[i].Matches},
+                {Map: results[i].Map, Matches: max - results[i].Matches},
+                {Map: "None", Matches: max * 1 / 3}
+            ]);
+        }
+        var color = ["#A2C2CA", "#e1e1e1", "#fff"];
+
+        for (let i in maps) {
+            var r = 250 - i * 30;
+            var group = svg.append('g').attr('transform', `translate(${width / 2 + margin.left},250)`);
+            var arc = d3.arc().innerRadius(r - 30).outerRadius(r - 5);
+            var pie = d3.pie().sort(null).value(d => d.Matches);
+            var arcs = group.selectAll('.arc').data(pie(maps[i])).enter().append('g').attr('class', 'arc');
+            arcs.append('path').attr('d', arc).attr('fill', (d, i) => color[i])
+                .on('mouseover', function(d) {
+                    if (d.data.Map != "None") {
+                        let arc = $(this).parent();
+                        tooltip.style('transition', 'opacity .3s linear');
+                        tooltip.style('opacity', 1);
+                        tooltip.select('text').text(maps[i][0].Matches);
+                        tooltip.attr('transform', `translate(${width / 2 + 27 - (8 - i) * 30},248)`);
+                        arc.parent().children('g').first().children('path').attr('fill', '#0077b6');
+                        arc.parent().children('g').eq(1).children('path').attr('fill', '#c0c0c0');
+                        arc.parent().parent().find('text').each(function() {
+                            if ($(this).text() == d.data.Map) {
+                                $(this).attr('fill', '#0077b6');
+                            }
+                        });
+                    }
+                })
+                .on('mouseout', function(d) {
+                    if (d.data.Map != "None") {
+                        tooltip.style('transition', 'opacity 0s linear');
+                        tooltip.style('opacity', 0);
+                        $(this).parent().parent().children('g').first().children('path').attr('fill', color[0]);
+                        $(this).parent().parent().children('g').eq(1).children('path').attr('fill', color[1]);
+                        $(this).parent().parent().parent().find('text').each(function() {
+                            $(this).attr('fill', '#000');
+                        });
+                    }
+                });
+        }
+
+        var gTxt = svg.append('g').attr('transform', `translate(${width / 2 + margin.left + 50},22)`)
+            .attr('style', 'text-anchor: end');
+        for (let i in maps) {
+            gTxt.append('text').text(maps[i][0].Map).attr('font-size', '16px')
+                .attr('transform', d => `translate(-60,${i * 30})`)
+                .attr('style', 'display: block; width: 100px; font-weight: 580;').style('cursor', 'pointer')
+                .on('mouseover', function() {
+                    $(this).attr('fill', '#0077b6');
+                    $(this).parent().parent().children('g').eq(i).find('path').first().attr('fill', '#0077b6');
+                    $(this).parent().parent().children('g').eq(i).find('path').eq(1).attr('fill', '#c0c0c0');
+                    tooltip.style('transition', 'opacity .3s linear');
+                    tooltip.style('opacity', 1);
+                    tooltip.select('text').text(maps[i][0].Matches);
+                    tooltip.attr('transform', `translate(${width / 2 + 27 - (8 - i) * 30},248)`);
+                })
+                .on('mouseout', function() {
+                    $(this).attr('fill', '#000');
+                    $(this).parent().parent().children('g').eq(i).find('path').first().attr('fill', color[0]);
+                    $(this).parent().parent().children('g').eq(i).find('path').eq(1).attr('fill', color[1]);
+                    tooltip.style('transition', 'opacity .0s linear');
+                    tooltip.style('opacity', 0);
+                });
+        }
+
+        const tooltip = svg.append('g').style('opacity', 0);
+        tooltip.append('text').style('text-anchor', 'middle')
+            .attr('font-size', '12px').attr('font-weight', 'bold').attr('fill', '#000');
+    });
+                </code></pre>
+        </div>
+
+        <div class="chart-description">Эта диаграмма показывает количество сыгранных матчей на рызных картах (всего 8).</div>
+    </div>
+
+    <div class="chart hidden">
+        <h2>Убийства / Ассисты / Смерти<div class="after">&#9660;</div></h2>
+        <div class="chart-menu">
+            <div class="active">Диаграмма</div>
+            <div>Код</div>
+        </div>
+        <div class="chart-block" id="bar-chart"></div>
+        <div class="chart-block code hidden">
+                <pre><code>
+    const data_source = "{% static 'data/data1.csv' %}";
+
+    const margin = {top: 20, right: 20, bottom: 20, left: 20};
+    const width = $('.chart-block').width() - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+
+
+    var svg = d3.select("#bar-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "500").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        const dataset = d3.stack().keys(["Kills", "Assists", "Deaths"])(
+            d3.nest().key(d => d.Period)
+                .rollup(v => ({
+                    Kills: d3.sum(v, d => parseInt(d.Kills)),
+                    Assists: d3.sum(v, d => parseInt(d.Assists)),
+                    Deaths: d3.sum(v, d => parseInt(d.Deaths))
+                })).entries(data)
+            .map(d => ({
+                    Period: parseInt(d.key),
+                    Kills: d.value.Kills,
+                    Assists: d.value.Assists,
+                    Deaths: d.value.Deaths
+                })
+            ));
+
+        const x = d3.scaleBand()
+            .domain(dataset[0].map(d => d.data.Period))
+            .range([30, width - 30]);
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(dataset, d => d3.max(d, d => d[1]))])
+            .range([500, 40]);
+
+        const colors = ["#0077B6", "#00B4D8", "#90E0EF"];
+        const yAxis = d3.axisLeft(y).ticks(10).tickSize(-width+60, 0, 0).tickFormat(d => d);
+        const xAxis = d3.axisBottom(x);
+
+        svg.append('g').attr('class', 'y axis').attr('font-size', '16px')
+            .attr('transform', 'translate(60,-20)').call(yAxis);
+        svg.append('g').attr('class', 'x axis').attr('font-size', '16px')
+            .attr('transform', `translate(30,${height + 20})`).call(xAxis);
+
+        const groups = svg.selectAll('g.cost').data(dataset).enter().append('g').attr('class', 'cost')
+            .attr('transform', 'translate(0,-20)').style('fill', (d, i) => colors[i]);
+        svg.append('g').selectAll('g').data(dataset).join('g')
+            .attr('fill', (d, i) => colors[i]).selectAll('rect').data(d => d).join('rect')
+            .attr('x', d => x(d.data.Period) + 30).attr('y', d => y(d[1]))
+            .attr('height', d => y(d[0]) - y(d[1])).attr('width', x.bandwidth())
+            .attr('transform', 'translate(0,-20)')
+            .on('mouseover', d => {
+                tooltip.style('transition', 'opacity .3s linear');
+                tooltip.style('opacity', 1);
+                tooltip.attr('transform', `translate(${x(d.data.Period) + 30 + x.bandwidth() / 2}
+                    ,${y(d[1]) + (y(d[0]) - y(d[1])) / 2 - 15})`);
+                tooltip.select('text').text(d[1] - d[0]);
+            }).on('mouseout', () => {
+                tooltip.style('transition', 'opacity 0s linear');
+                tooltip.style('opacity', 0);
+            }).style('cursor', 'pointer');
+
+        const legend = svg.selectAll('.legend').data(colors).enter().append('g')
+            .attr('class', 'legend').attr('transform', (d, i) => `translate(-55,${55 + i * 15})`);
+        legend.append('rect').attr('x', width - 14).attr('width', 14).attr('height', 14)
+            .style('fill', (d, i) => colors.slice().reverse()[i]);
+        legend.append('text').attr('x', width + 2).attr('y', 2).attr('font-size', '12px')
+            .attr('dy', '10px').style('text-anchor', 'start').text((d, i) => {
+                switch (i) { case 0: return "Смертей"; case 1: return "Ассистов"; case 2: return "Убийств"; }
+            });
+
+        const tooltip = svg.append('g').attr('fill', '#fff');
+        tooltip.append('text').style('text-anchor', 'middle')
+            .attr('font-size', '12px').attr('font-weight', 'bold');
+    });
+                </code></pre>
+        </div>
+        <div class="chart-description">Эта диаграмма показывает сумму убийств, ассистов и смертей для каждого выбранного периода.</div>
+    </div>
+
+    <div class="chart hidden">
+        <h2>Позиция / КР / КД / ХШ% <div class="after">&#9660;</div></h2>
+        <div class="chart-menu">
+            <div class="active">Диаграмма</div>
+            <div>Код</div>
+        </div>
+        <div class="chart-block" id="line-chart" style="position: relative;">
+            <div class="line-chart-selector">
+                <div class="line-chart-select active">Position</div>
+                <div class="line-chart-select">KR</div>
+                <div class="line-chart-select">KD</div>
+                <div class="line-chart-select">HSP</div>
+            </div>
+        </div>
+        <div class="chart-block code hidden">
+                <pre><code>
+    const data_source = "{% static 'data/data1.csv' %}";
+
+    const margin = {top: 20, right: 20, bottom: 20, left: 20};
+    const width = $('.chart-block').width() - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+
+
+    var svg = d3.select("#line-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "500").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        dataset3 = d3.nest().key(d => d.Period)
+            .rollup(v => ({
+                Position: d3.mean(v, d => d.Position),
+                KR: d3.mean(v, d => d.KR),
+                KD: d3.mean(v, d => d.KD),
+                HSP: d3.mean(v, d => d.HSP)
+            })).entries(data)
+            .map(d => ({
+                Period: parseInt(d.key),
+                Position: d.value.Position,
+                KR: d.value.KR,
+                KD: d.value.KD,
+                HSP: d.value.HSP
+            }));
+
+        var x3 = d3.scaleBand().domain(dataset3.map(d => d.Period)).range([30, width - 30]);
+        var y3 = d3.scaleLinear().range([500, 40]);
+
+        const x3Axis = d3.axisBottom(x3);
+        const y3Axis = d3.axisLeft(y3).ticks().tickSize(-width+60, 0, 0).tickFormat(d => d);
+
+        var xline = svg.append('g').attr('class', 'x axis').attr('font-size', '16px')
+            .attr('transform', `translate(30,${height + 20})`).call(x3Axis);
+        var yline = svg.append('g').attr('class', 'y axis').attr('font-size', '16px')
+            .attr('transform', 'translate(60,-20)').call(y3Axis);
+
+        var line = svg.append('g').append('path');
+
+        const tooltip = svg.append('g').style('opacity', 0);
+        tooltip.append('rect').attr('width', 40).attr('height', 20).style('opacity', 1)
+            .attr('fill', '#004B85').attr('rx', '5').attr('ry', '5');
+        tooltip.append('text').attr('x', 20).attr('dy', '1.2em').style('text-anchor', 'middle')
+            .attr('font-size', '12px').attr('font-weight', 'bold').attr('fill', '#fff');
+
+        function update3(sel) {
+            var dataset = dataset3.map(d => ({x: parseInt(d.Period), y: d[sel]}));
+            y3.domain([d3.min(dataset, d => d.y), d3.max(dataset, d => d.y)]);
+            yline.transition().duration(500).call(y3Axis);
+
+            line.datum(dataset).transition().duration(500).attr('d', d3.line()
+                .x(d => x3(+d.x)).y(d => y3(+d.y)))
+                .attr('stroke', '#90E0EF').style('stroke-width', 2).style('fill', 'none').attr('transform', 'translate(93, -20)');
+
+            var dots = svg.selectAll('circle').data(dataset);
+            dots.enter().append('circle').merge(dots).transition().duration(500).attr('cx', d => x3(+d.x))
+                .attr('cy', d => y3(+d.y)).attr('r', 7).attr('fill', '#0077B6')
+                .attr('transform', 'translate(93, -20)').attr('stroke', '#fff').style('stroke-width', 2).style('cursor', 'pointer');
+
+            svg.selectAll('circle').data(dataset).on('mouseover', function(d) {
+                d3.select(this).attr('fill', '#004B85');
+                tooltip.style('transition', 'opacity .3s linear');
+                tooltip.style('opacity', 1);
+                tooltip.select("text").text(d.y.toFixed(2));
+                tooltip.attr('transform', `translate(${x3(d.x)+105},${y3(d.y)-30})`)
+            }).on('mouseout', function(d) {
+                tooltip.style('transition', 'opacity 0s linear');
+                tooltip.style('opacity', 0);
+                d3.select(this).attr('fill', '#0077b6');
+            });
+        }
+
+        update3('Position');
+
+        $('.line-chart-select').on('click', function() {
+            if (!$(this).hasClass('active')) {
+                $('.line-chart-select.active').removeClass('active');
+                $(this).addClass('active');
+                update3($(this).text());
+            }
+        });
+    });
+                </code></pre>
+        </div>
+        <div class="chart-description">Эти графики показывают средние значения важнейших показателей индивидуального скилла игрока за все периоды.</div>
+    </div>
+
+    <div class="chart hidden">
+        <h2>Винрейт <div class="after">&#9660;</div></h2>
+        <div class="chart-menu">
+            <div class="active">Графики</div>
+            <div>Код</div>
+        </div>
+        <div class="chart-block" id="rounds-chart">
+        </div>
+        <div class="chart-block code hidden">
+                <pre><code>
+    const data_source = "{% static 'data/data1.csv' %}";
+
+    const margin = {top: 20, right: 20, bottom: 20, left: 20};
+    const width = $('.chart-block').width() - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+
+
+    var svg = d3.select("#rounds-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "500").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        data = data.filter(d => d.Rounds >= 16 && d.Rounds <= 30), dataset = [];
+        dataprep = d3.nest().key(d => d.Rounds).key(d => d.Period)
+            .rollup(v => parseInt(d3.sum(v, d => parseInt(d.Result)) / v.length * 100)).entries(data);
+
+        for (var i in dataprep) {
+            for (var j in dataprep[i].values) {
+                dataset.push({Rounds: dataprep[i].key, Period: dataprep[i].values[j].key, Winrate: dataprep[i].values[j].value});
+            }
+        }
+
+        var x = d3.scaleBand().domain(Array(15).fill(0).map((e,i) => i+16))
+            .range([30, width - 30]).padding(0.01);
+        var y = d3.scaleBand().domain(Array(8).fill(0).map((e,i) => i+1))
+            .range([500, 40]).padding(0.01);
+        svg.append('g').attr('transform', `translate(30,${height + 20})`).call(d3.axisBottom(x))
+        svg.append('g').attr('transform', 'translate(60,-20)').call(d3.axisLeft(y));
+        var myColor = d3.scaleLinear().range(["#004B85", "#86f8fb"]).domain([0,100]);
+
+        svg.selectAll().data(dataset, d => d.Rounds+':'+d.Period).enter().append("rect")
+            .attr('x', d => x(d.Rounds)).attr('y', d => y(d.Period))
+            .attr('width', x.bandwidth() ).attr('height', y.bandwidth() )
+            .style('cursor', 'pointer').attr('transform', 'translate(30,-20)')
+            .style('fill', d => myColor(d.Winrate))
+            .on('mouseover', d => {
+                tooltip.select('text').text(`${d.Winrate}%`);
+                tooltip.style('opacity', '1');
+                tooltip.attr('transform', `translate(${x(d.Rounds) + x.bandwidth() / 2 + 30},${y(d.Period) + 12})`);
+            })
+            .on('mouseout', () => tooltip.style('opacity', '0'));
+
+        const tooltip = svg.append('g').style('transition', 'opacity .3s linear')
+            .style('opacity', '0').style('cursor', 'pointer');
+        tooltip.append('text').style('text-anchor', 'middle')
+            .attr('font-size', '12px').attr('font-weight', 'bold').attr('fill', '#fff');
+        tooltip.on('mouseover', () => tooltip.style('opacity', '1'))
+            .on('mouseout', () => tooltip.style('opacity', '0'));
+    });
+                </code></pre>
+        </div>
+        <div class="chart-description">Эта диаграмма показывает зависимость винрейта (%) от количества убийств одного игрока по каждому периоду.</div>
+    </div>
+
+    <div class="chart hidden">
+        <h2>Убийства &#8594; Хэдшоты<div class="after">&#9660;</div></h2>
+        <div class="chart-menu">
+            <div class="active">Диаграмма</div>
+            <div>Код</div>
+        </div>
+        <div class="chart-block" id="hs-chart" style="position: relative;">
+            <input type="range" min="0" max="100" step="1" value="100" class="hs-range" id="hs-opacity">
+            <span class="hs-range-span" id="hs-opacity-span">100%</span>
+            <input type="range" min="5" max="5" step="1" value="5" class="hs-range" id="hs-radius">
+            <span class="hs-range-span" id="hs-radius-span">5</span>
+            <svg id="hs-reload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#90e0ef" d="M370.72 133.28C339.458 104.008 298.888 87.962 255.848 88c-77.458.068-144.328 53.178-162.791 126.85-1.344 5.363-6.122 9.15-11.651 9.15H24.103c-7.498 0-13.194-6.807-11.807-14.176C33.933 94.924 134.813 8 256 8c66.448 0 126.791 26.136 171.315 68.685L463.03 40.97C478.149 25.851 504 36.559 504 57.941V192c0 13.255-10.745 24-24 24H345.941c-21.382 0-32.09-25.851-16.971-40.971l41.75-41.749zM32 296h134.059c21.382 0 32.09 25.851 16.971 40.971l-41.75 41.75c31.262 29.273 71.835 45.319 114.876 45.28 77.418-.07 144.315-53.144 162.787-126.849 1.344-5.363 6.122-9.15 11.651-9.15h57.304c7.498 0 13.194 6.807 11.807 14.176C478.067 417.076 377.187 504 256 504c-66.448 0-126.791-26.136-171.315-68.685L48.97 471.03C33.851 486.149 8 475.441 8 454.059V320c0-13.255 10.745-24 24-24z"/></svg>
+        </div>
+        <div class="chart-block code hidden">
+                <pre><code>
+    const data_source = "{% static 'data/data1.csv' %}";
+
+    const margin = {top: 20, right: 20, bottom: 20, left: 20};
+    const width = $('.chart-block').width() - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+
+    var svg = d3.select("#hs-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "500").attr("width", width + margin.left + margin.right);
+
+
+    d3.csv(data_source).then(data => {
+        data = data.filter(d => d.Kills > 0), dataset = [];
+        dataprep = d3.nest().key(d => d.Kills).key(d => d.HS)
+            .rollup(v => v.length).entries(data);
+        for (let i in dataprep) {
+            for (let j in dataprep[i].values) {
+                dataset.push({
+                    Kills: dataprep[i].key,
+                    HS: dataprep[i].values[j].key,
+                    K: dataprep[i].values[j].value
+                });
+            }
+        }
+
+        $('#hs-radius').attr('max', Math.max.apply(Math, dataset.map(d => d.K + 4))).val('5');
+        $('#hs-radius-span').text('5');
+
+        var x = d3.scaleBand()
+            .domain([...new Set(dataset.map(d => parseInt(d.Kills)))].sort((a, b) => a - b))
+            .range([30, width - 30]).padding(0.01);
+        var y = d3.scaleBand()
+            .domain([...new Set(dataset.map(d => parseInt(d.HS)))].sort((a, b) => a - b))
+            .range([500, 40]).padding(0.01);
+        var z = d3.scaleLinear().domain([1, Math.max.apply(Math, dataset.map(d => d.K + 1))])
+            .range([1, Math.max.apply(Math, dataset.map(d => d.K + 1))]);
+
+        svg.append('g').attr('transform', `translate(30,${height + 20})`)
+            .call(d3.axisBottom(x).ticks().tickSize(-height, 0, 0).tickFormat(d => d));
+        svg.append('g').attr('transform', 'translate(60,-20)')
+            .call(d3.axisLeft(y).ticks().tickSize(-width+60, 0, 0).tickFormat(d => d));
+        var myColor = d3.scaleLinear().range(["#0077b6", "#86f8fb"])
+            .domain([1, Math.max.apply(Math, dataset.map(d => d.K))]);
+
+        var update = () => {
+            $('#hs-chart').find('circle').parent().remove();
+            var circles = svg.append('g').selectAll('dot').data(dataset).enter().append('circle')
+                .attr('cx', d => x(d.Kills))
+                .attr('cy', d => y(d.HS))
+                .attr('r', d => z(d.K) + 2).style('cursor', 'pointer')
+                .style('fill', d => myColor(d.K)).attr('transform', 'translate(41.5,-10)')
+                .style('opacity', 1).attr('stroke', '#fff').style('stroke-width', '1px')
+                .on('click', function() {
+                    let t = $(this);
+                    t.hide(250);
+                    setTimeout(() => t.remove(), 250);
+            });
+        }
+
+        $('#hs-reload').on('click', () => {
+            $('#hs-opacity').val(100);
+            $('#hs-opacity-span').text('100%');
+            $('#hs-radius').val(5);
+            $('#hs-radius-span').text(5);
+            update();
+        });
+
+        update();
+    });
+                </code></pre>
+        </div>
+        <div class="chart-description">Эта диаграмма показывает распределение количества убийств и количества попаданий в голову каждого матча.</div>
+    </div>
+</div>
+<script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript">
+    const data_source = 'data/data.csv';
+
+    const margin = {top: 20, right: 20, bottom: 20, left: 20};
+    const width = $('.chart-block').width() - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+
+    var svg1 = d3.select("#maps-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        var results = d3.nest().key(d => d.Map).rollup(v => v.length)
+            .entries(data).sort((a, b) => d3.descending(a.value, b.value))
+            .map(d => ({Map: d.key, Matches: d.value}));
+        var max = Math.max.apply(Math, results.map(d => d.Matches)), maps = [];
+
+        for (let i in results) {
+            maps.push([
+                {Map: results[i].Map, Matches: results[i].Matches},
+                {Map: results[i].Map, Matches: max - results[i].Matches},
+                {Map: "None", Matches: max * 1 / 3}
+            ]);
+        }
+        var color = ["#A2C2CA", "#e1e1e1", "#fff"];
+
+        for (let i in maps) {
+            var r = 250 - i * 30;
+            var group = svg1.append('g').attr('transform', `translate(${width / 2 + margin.left},250)`);
+            var arc = d3.arc().innerRadius(r - 30).outerRadius(r - 5);
+            var pie = d3.pie().sort(null).value(d => d.Matches);
+            var arcs = group.selectAll('.arc').data(pie(maps[i])).enter().append('g').attr('class', 'arc');
+            arcs.append('path').attr('d', arc).attr('fill', (d, i) => color[i])
+                .on('mouseover', function(d) {
+                    if (d.data.Map != "None") {
+                        let arc = $(this).parent();
+                        tooltip.style('transition', 'opacity .3s linear');
+                        tooltip.style('opacity', 1);
+                        tooltip.select('text').text(maps[i][0].Matches);
+                        tooltip.attr('transform', `translate(${width / 2 + 27 - (8 - i) * 30},248)`);
+                        arc.parent().children('g').first().children('path').attr('fill', '#0077b6');
+                        arc.parent().children('g').eq(1).children('path').attr('fill', '#c0c0c0');
+                        arc.parent().parent().find('text').each(function() {
+                            if ($(this).text() == d.data.Map) {
+                                $(this).attr('fill', '#0077b6');
+                            }
+                        });
+                    }
+                })
+                .on('mouseout', function(d) {
+                    if (d.data.Map != "None") {
+                        tooltip.style('transition', 'opacity 0s linear');
+                        tooltip.style('opacity', 0);
+                        $(this).parent().parent().children('g').first().children('path').attr('fill', color[0]);
+                        $(this).parent().parent().children('g').eq(1).children('path').attr('fill', color[1]);
+                        $(this).parent().parent().parent().find('text').each(function() {
+                            $(this).attr('fill', '#000');
+                        });
+                    }
+                });
+        }
+
+        var gTxt = svg1.append('g').attr('transform', `translate(${width / 2 + margin.left + 50},22)`)
+            .attr('style', 'text-anchor: end');
+        for (let i in maps) {
+            gTxt.append('text').text(maps[i][0].Map).attr('font-size', '16px')
+                .attr('transform', d => `translate(-60,${i * 30})`)
+                .attr('style', 'display: block; width: 100px; font-weight: 580;').style('cursor', 'pointer')
+                .on('mouseover', function() {
+                    $(this).attr('fill', '#0077b6');
+                    $(this).parent().parent().children('g').eq(i).find('path').first().attr('fill', '#0077b6');
+                    $(this).parent().parent().children('g').eq(i).find('path').eq(1).attr('fill', '#c0c0c0');
+                    tooltip.style('transition', 'opacity .3s linear');
+                    tooltip.style('opacity', 1);
+                    tooltip.select('text').text(maps[i][0].Matches);
+                    tooltip.attr('transform', `translate(${width / 2 + 27 - (8 - i) * 30},248)`);
+                })
+                .on('mouseout', function() {
+                    $(this).attr('fill', '#000');
+                    $(this).parent().parent().children('g').eq(i).find('path').first().attr('fill', color[0]);
+                    $(this).parent().parent().children('g').eq(i).find('path').eq(1).attr('fill', color[1]);
+                    tooltip.style('transition', 'opacity .0s linear');
+                    tooltip.style('opacity', 0);
+                });
+        }
+
+        const tooltip = svg1.append('g').style('opacity', 0);
+        tooltip.append('text').style('text-anchor', 'middle')
+            .attr('font-size', '12px').attr('font-weight', 'bold').attr('fill', '#000');
+    });
+
+    var svg2 = d3.select("#bar-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "500").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        const dataset = d3.stack().keys(["Kills", "Assists", "Deaths"])(
+            d3.nest().key(d => d.Period)
+                .rollup(v => ({
+                    Kills: d3.sum(v, d => parseInt(d.Kills)),
+                    Assists: d3.sum(v, d => parseInt(d.Assists)),
+                    Deaths: d3.sum(v, d => parseInt(d.Deaths))
+                })).entries(data)
+                .map(d => ({
+                        Period: parseInt(d.key),
+                        Kills: d.value.Kills,
+                        Assists: d.value.Assists,
+                        Deaths: d.value.Deaths
+                    })
+                ));
+
+        const x = d3.scaleBand()
+            .domain(dataset[0].map(d => d.data.Period))
+            .range([30, width - 30]);
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(dataset, d => d3.max(d, d => d[1]))])
+            .range([500, 40]);
+
+        const colors = ["#0077B6", "#00B4D8", "#90E0EF"];
+        const yAxis = d3.axisLeft(y).ticks(10).tickSize(-width+60, 0, 0).tickFormat(d => d);
+        const xAxis = d3.axisBottom(x);
+
+        svg2.append('g').attr('class', 'y axis').attr('font-size', '16px')
+            .attr('transform', 'translate(60,-20)').call(yAxis);
+        svg2.append('g').attr('class', 'x axis').attr('font-size', '16px')
+            .attr('transform', `translate(30,${height + 20})`).call(xAxis);
+
+        const groups = svg2.selectAll('g.cost').data(dataset).enter().append('g').attr('class', 'cost')
+            .attr('transform', 'translate(0,-20)').style('fill', (d, i) => colors[i]);
+        svg2.append('g').selectAll('g').data(dataset).join('g')
+            .attr('fill', (d, i) => colors[i]).selectAll('rect').data(d => d).join('rect')
+            .attr('x', d => x(d.data.Period) + 30).attr('y', d => y(d[1]))
+            .attr('height', d => y(d[0]) - y(d[1])).attr('width', x.bandwidth())
+            .attr('transform', 'translate(0,-20)')
+            .on('mouseover', d => {
+                tooltip.style('transition', 'opacity .3s linear');
+                tooltip.style('opacity', 1);
+                tooltip.attr('transform', `translate(${x(d.data.Period) + 30 + x.bandwidth() / 2}
+                    ,${y(d[1]) + (y(d[0]) - y(d[1])) / 2 - 15})`);
+                tooltip.select('text').text(d[1] - d[0]);
+            }).on('mouseout', () => {
+            tooltip.style('transition', 'opacity 0s linear');
+            tooltip.style('opacity', 0);
+        }).style('cursor', 'pointer');
+
+        const legend = svg2.selectAll('.legend').data(colors).enter().append('g')
+            .attr('class', 'legend').attr('transform', (d, i) => `translate(-55,${55 + i * 15})`);
+        legend.append('rect').attr('x', width - 14).attr('width', 14).attr('height', 14)
+            .style('fill', (d, i) => colors.slice().reverse()[i]);
+        legend.append('text').attr('x', width + 2).attr('y', 2).attr('font-size', '12px')
+            .attr('dy', '10px').style('text-anchor', 'start').text((d, i) => {
+            switch (i) { case 0: return "Смертей"; case 1: return "Ассистов"; case 2: return "Убийств"; }
+        });
+
+        const tooltip = svg2.append('g').attr('fill', '#fff');
+        tooltip.append('text').style('text-anchor', 'middle')
+            .attr('font-size', '12px').attr('font-weight', 'bold');
+    });
+
+    var svg3 = d3.select("#line-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "500").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        dataset3 = d3.nest().key(d => d.Period)
+            .rollup(v => ({
+                Position: d3.mean(v, d => d.Position),
+                KR: d3.mean(v, d => d.KR),
+                KD: d3.mean(v, d => d.KD),
+                HSP: d3.mean(v, d => d.HSP)
+            })).entries(data)
+            .map(d => ({
+                Period: parseInt(d.key),
+                Position: d.value.Position,
+                KR: d.value.KR,
+                KD: d.value.KD,
+                HSP: d.value.HSP
+            }));
+
+        var x3 = d3.scaleBand().domain(dataset3.map(d => d.Period)).range([30, width - 30]);
+        var y3 = d3.scaleLinear().range([500, 40]);
+
+        const x3Axis = d3.axisBottom(x3);
+        const y3Axis = d3.axisLeft(y3).ticks().tickSize(-width+60, 0, 0).tickFormat(d => d);
+
+        var xline = svg3.append('g').attr('class', 'x axis').attr('font-size', '16px')
+            .attr('transform', `translate(30,${height + 20})`).call(x3Axis);
+        var yline = svg3.append('g').attr('class', 'y axis').attr('font-size', '16px')
+            .attr('transform', 'translate(60,-20)').call(y3Axis);
+
+        var line = svg3.append('g').append('path');
+
+        const tooltip = svg3.append('g').style('opacity', 0);
+        tooltip.append('rect').attr('width', 40).attr('height', 20).style('opacity', 1)
+            .attr('fill', '#004B85').attr('rx', '5').attr('ry', '5');
+        tooltip.append('text').attr('x', 20).attr('dy', '1.2em').style('text-anchor', 'middle')
+            .attr('font-size', '12px').attr('font-weight', 'bold').attr('fill', '#fff');
+
+        function update3(sel) {
+            var dataset = dataset3.map(d => ({x: parseInt(d.Period), y: d[sel]}));
+            y3.domain([d3.min(dataset, d => d.y), d3.max(dataset, d => d.y)]);
+            yline.transition().duration(500).call(y3Axis);
+
+            line.datum(dataset).transition().duration(500).attr('d', d3.line()
+                .x(d => x3(+d.x)).y(d => y3(+d.y)))
+                .attr('stroke', '#90E0EF').style('stroke-width', 2).style('fill', 'none').attr('transform', 'translate(93, -20)');
+
+            var dots = svg3.selectAll('circle').data(dataset);
+            dots.enter().append('circle').merge(dots).transition().duration(500).attr('cx', d => x3(+d.x))
+                .attr('cy', d => y3(+d.y)).attr('r', 7).attr('fill', '#0077B6')
+                .attr('transform', 'translate(93, -20)').attr('stroke', '#fff').style('stroke-width', 2).style('cursor', 'pointer');
+
+            svg3.selectAll('circle').data(dataset).on('mouseover', function(d) {
+                d3.select(this).attr('fill', '#004B85');
+                tooltip.style('transition', 'opacity .3s linear');
+                tooltip.style('opacity', 1);
+                tooltip.select("text").text(d.y.toFixed(2));
+                tooltip.attr('transform', `translate(${x3(d.x)+105},${y3(d.y)-30})`)
+            }).on('mouseout', function(d) {
+                tooltip.style('transition', 'opacity 0s linear');
+                tooltip.style('opacity', 0);
+                d3.select(this).attr('fill', '#0077b6');
+            });
+        }
+
+        update3('Position');
+
+        $('.line-chart-select').on('click', function() {
+            if (!$(this).hasClass('active')) {
+                $('.line-chart-select.active').removeClass('active');
+                $(this).addClass('active');
+                update3($(this).text());
+            }
+        });
+    });
+
+    var svg4 = d3.select("#rounds-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "500").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        data = data.filter(d => d.Rounds >= 16 && d.Rounds <= 30), dataset = [];
+        dataprep = d3.nest().key(d => d.Rounds).key(d => d.Period)
+            .rollup(v => parseInt(d3.sum(v, d => parseInt(d.Result)) / v.length * 100)).entries(data);
+
+        for (var i in dataprep) {
+            for (var j in dataprep[i].values) {
+                dataset.push({Rounds: dataprep[i].key, Period: dataprep[i].values[j].key, Winrate: dataprep[i].values[j].value});
+            }
+        }
+
+        var x = d3.scaleBand().domain(Array(15).fill(0).map((e,i) => i+16))
+            .range([30, width - 30]).padding(0.01);
+        var y = d3.scaleBand().domain(Array(8).fill(0).map((e,i) => i+1))
+            .range([500, 40]).padding(0.01);
+        svg4.append('g').attr('transform', `translate(30,${height + 20})`).call(d3.axisBottom(x))
+        svg4.append('g').attr('transform', 'translate(60,-20)').call(d3.axisLeft(y));
+        var myColor = d3.scaleLinear().range(["#004B85", "#86f8fb"]).domain([0,100]);
+
+        svg4.selectAll().data(dataset, d => d.Rounds+':'+d.Period).enter().append("rect")
+            .attr('x', d => x(d.Rounds)).attr('y', d => y(d.Period))
+            .attr('width', x.bandwidth() ).attr('height', y.bandwidth() )
+            .style('cursor', 'pointer').attr('transform', 'translate(30,-20)')
+            .style('fill', d => myColor(d.Winrate))
+            .on('mouseover', d => {
+                tooltip.select('text').text(`${d.Winrate}%`);
+                tooltip.style('opacity', '1');
+                tooltip.attr('transform', `translate(${x(d.Rounds) + x.bandwidth() / 2 + 30},${y(d.Period) + 12})`);
+            })
+            .on('mouseout', () => tooltip.style('opacity', '0'));
+
+        const tooltip = svg4.append('g').style('transition', 'opacity .3s linear')
+            .style('opacity', '0').style('cursor', 'pointer');
+        tooltip.append('text').style('text-anchor', 'middle')
+            .attr('font-size', '12px').attr('font-weight', 'bold').attr('fill', '#fff');
+        tooltip.on('mouseover', () => tooltip.style('opacity', '1'))
+            .on('mouseout', () => tooltip.style('opacity', '0'));
+    });
+
+    var svg5 = d3.select("#hs-chart")
+        .append("div").attr("class", "svg-containter")
+        .append("svg").attr("height", "500").attr("width", width + margin.left + margin.right);
+
+    d3.csv(data_source).then(data => {
+        data = data.filter(d => d.Kills > 0), dataset = [];
+        dataprep = d3.nest().key(d => d.Kills).key(d => d.HS)
+            .rollup(v => v.length).entries(data);
+        for (let i in dataprep) {
+            for (let j in dataprep[i].values) {
+                dataset.push({
+                    Kills: dataprep[i].key,
+                    HS: dataprep[i].values[j].key,
+                    K: dataprep[i].values[j].value
+                });
+            }
+        }
+
+        $('#hs-radius').attr('max', Math.max.apply(Math, dataset.map(d => d.K + 4))).val('5');
+        $('#hs-radius-span').text('5');
+
+        var x = d3.scaleBand()
+            .domain([...new Set(dataset.map(d => parseInt(d.Kills)))].sort((a, b) => a - b))
+            .range([30, width - 30]).padding(0.01);
+        var y = d3.scaleBand()
+            .domain([...new Set(dataset.map(d => parseInt(d.HS)))].sort((a, b) => a - b))
+            .range([500, 40]).padding(0.01);
+        var z = d3.scaleLinear().domain([1, Math.max.apply(Math, dataset.map(d => d.K + 1))])
+            .range([1, Math.max.apply(Math, dataset.map(d => d.K + 1))]);
+
+        svg5.append('g').attr('transform', `translate(30,${height + 20})`)
+            .call(d3.axisBottom(x).ticks().tickSize(-height, 0, 0).tickFormat(d => d));
+        svg5.append('g').attr('transform', 'translate(60,-20)')
+            .call(d3.axisLeft(y).ticks().tickSize(-width+60, 0, 0).tickFormat(d => d));
+        var myColor = d3.scaleLinear().range(["#0077b6", "#86f8fb"])
+            .domain([1, Math.max.apply(Math, dataset.map(d => d.K))]);
+
+        var update = () => {
+            $('#hs-chart').find('circle').parent().remove();
+            var circles = svg5.append('g').selectAll('dot').data(dataset).enter().append('circle')
+                .attr('cx', d => x(d.Kills))
+                .attr('cy', d => y(d.HS))
+                .attr('r', d => z(d.K) + 2).style('cursor', 'pointer')
+                .style('fill', d => myColor(d.K)).attr('transform', 'translate(41.5,-10)')
+                .style('opacity', 1).attr('stroke', '#fff').style('stroke-width', '1px')
+                .on('click', function() {
+                    let t = $(this);
+                    t.hide(250);
+                    setTimeout(() => t.remove(), 250);
+                });
+        }
+
+        $('#hs-reload').on('click', () => {
+            $('#hs-opacity').val(100);
+            $('#hs-opacity-span').text('100%');
+            $('#hs-radius').val(5);
+            $('#hs-radius-span').text(5);
+            update();
+        });
+
+        update();
+    });
+</script>
+<script type="text/javascript">
+    $('.chart>h2').on('click', function() {
+        $(this).parent().toggleClass('hidden');
+        $(this).children('.after').toggleClass('closed')
+    });
+
+    $('.chart-menu>div').on('click', function() {
+        if (!$(this).hasClass('active')) {
+            var p = $(this).parent().parent();
+            p.find('.chart-menu>div').toggleClass('active');
+            p.find('.chart-block').toggleClass('hidden');
+        }
+    });
+
+    $('g.arc').on('mouseover', function (e, i) {
+        console.log(i);
+        if (i == 0) {
+            $(this).children('path').attr('fill', '#C2B7D9');
+        }
+    });
+    $('g.arc').on('mouseout', function (e, i) {
+        if (i == 0) {
+            $(this).children('path').attr('fill', '#a2c2ca');
+        }
+    });
+
+    $('#hs-opacity').on('input', function() {
+        let v = $(this).val();
+        $('#hs-opacity-span').text(`${v}%`);
+        $('#hs-chart').find('circle').each(function() {
+            $(this).attr('fill-opacity', v / 100);
+            $(this).attr('stroke', `rgb(${v*5.1},${v*5.1},${v*5.1})`)
+        });
+    });
+
+    $('#hs-radius').on('input', function() {
+        let v = $(this).val();
+        $('#hs-radius-span').text(`${v}`);
+        $('#hs-chart').find('circle').each(function() {
+            if (parseInt($(this).attr('r')) >= v) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+</script>
+</body>
+</html>
