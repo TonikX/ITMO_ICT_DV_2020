@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <title>Line-chart</title>
+    <style>
+        body {
+            margin-left: 50px;
+            font-family: Arial;
+        }
+        text{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        span {
+            color: red;
+        }
+        ul li{
+            display: inline-block;
+            margin-right: 50px;
+        }
+        p {
+            font-size: 20px;
+        }
+        a:visited{
+            color: #3794de;
+        }
+        pre {
+            background: #f8f8f8;
+        }
+    </style>
+</head>
+
+<body>
+<h1>App Store и Google Play Store</h1>
+<p><b>Диаграммы:</b></p>
+<ul>
+    <li><a href="bar-chart.html">Bar-chart</a></li>
+    <li><a href="line-chart.html"><span>Line-chart</span></a></li>
+    <li><a href="lollipop-chart.html">Lollipop-chart</a></li>
+    <li><a href="circle-chart.html">Circle-chart</a></li>
+</ul>
+
+<h2>Line-chart</h2>
+<div id="my_dataviz"></div>
+<script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 30, left: 60},
+        width = 1400 - margin.left - margin.right,
+        height = 650 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    //Read the data
+    d3.csv("data/line-data.csv",
+
+        // When reading the csv, I must format variables:
+        function(d){
+            return { price : d.price, rating : d.rating }
+        },
+
+        // Now I can use this dataset:
+        function(data) {
+
+            // Add X axis --> it is a date format
+            var x = d3.scaleLinear()
+                .domain([0, d3.max(data, function(d) { return +d.price; })])
+                .range([ 0, width ]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            // Add Y axis
+            var y = d3.scaleLinear()
+                .domain([0, d3.max(data, function(d) { return +d.rating; })])
+                .range([ height, 0 ]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // Add the line
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "orange")
+                .attr("stroke-width", 3.5)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d.price) })
+                    .y(function(d) { return y(d.rating) })
+                )
+
+        })
+
+</script>
+<p>
+    <b>Описание:</b> диаграмма показывает зависимость кол-ва оценок приложений от их цены. Можно заметить, что с ростом стоимости приложения кол-во пользовательских оценок падает.
+</p>
+<h2>Код</h2>
+
+<pre><code>
+    var margin = {top: 10, right: 30, bottom: 30, left: 60},
+        width = 1400 - margin.left - margin.right,
+        height = 650 - margin.top - margin.bottom;
+
+    var svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.csv("data/line-data.csv",
+
+        function(d){
+            return { price : d.price, rating : d.rating }
+        },
+
+        function(data) {
+
+            var x = d3.scaleLinear()
+                .domain([0, d3.max(data, function(d) { return +d.price; })])
+                .range([ 0, width ]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            var y = d3.scaleLinear()
+                .domain([0, d3.max(data, function(d) { return +d.rating; })])
+                .range([ height, 0 ]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "orange")
+                .attr("stroke-width", 3.5)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d.price) })
+                    .y(function(d) { return y(d.rating) })
+                )
+
+        })
+
+</code></pre>
+</body>
+</html>
