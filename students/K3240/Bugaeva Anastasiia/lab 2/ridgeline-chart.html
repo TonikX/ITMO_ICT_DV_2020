@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+    <style>
+        .xAxis line {
+            stroke: #B8B8B8;
+        }
+    </style>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – samples (Coffee and Code)</h1>
+
+    <ul>
+        <li><a href="scribble.html">Scribble (line chart)</a></li>
+        <li><a href="line-chart.html">Line chart</a></li>
+        <li><a href="pie-chart.html">Pie chart</a></li>
+        <li><a href="parallel-chart.html">Parallel coordinates chart</a></li>
+        <li>Ridgeline chart</li>
+    </ul>
+
+    <p>
+        Это график плотности распределения вероятности, иногда называемый joyplot, позволяет визуализировать
+        распределение нескольких числовых переменных. Цвет зависит от среднего значения (чем больше среднее значение,
+        тем светлее цвет).
+
+    </p>
+    <p>
+        Источник: <a href="https://www.data-to-viz.com/graph/ridgeline.html" target="_blank">From Data To Viz</a>
+    </p>
+
+    <h2>Диаграмма</h2>
+
+    <div id="my_dataviz"></div>
+
+    <script>
+        // set the dimensions and margins of the graph
+        const margin = {top: 120, right: 30, bottom: 50, left:110};
+        const width = 460 - margin.left - margin.right;
+        const height = 440 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeTypes.csv", function(data) {
+
+            // Get the different categories and count them
+            const categories = ["American Coffee", "Americano", "Caffè latte", "Cappuccino", "Doppio", "Espresso", "Nescafe", "Turkish"];
+            const n = categories.length;
+
+            // Compute the mean of each group
+            let allMeans = [];
+            for (let i in categories){
+                let currentGroup = categories[i];
+                let mean = d3.mean(data, function(d) { if (d[currentGroup]) {return +d[currentGroup]} });
+                allMeans.push(mean)
+            }
+
+            // Create a color scale using these means.
+            const myColor = d3.scaleSequential()
+                .domain([4.5, 8])
+                .interpolator(d3.interpolateViridis);
+
+            // Add X axis
+            const x = d3.scaleLinear()
+                .domain([0, 11])
+                .range([0, width]);
+            svg.append("g")
+                .attr("class", "xAxis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x).tickValues([0, 2, 4, 6, 8, 10]).tickSize(-height))
+                .select(".domain").remove();
+
+            // Add X axis label
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", width/2)
+                .attr("y", height + 40)
+                .style("font-size", "30")
+                .text("CodingHours");
+
+            // Create a Y scale for densities
+            const y = d3.scaleLinear()
+                .domain([0, 2])
+                .range([height, 0]);
+
+            // Create the Y axis for names
+            const yName = d3.scaleBand()
+                .domain(categories)
+                .range([0, height])
+                .paddingInner(1);
+            svg.append("g")
+                .attr("class", "xAxis")
+                .call(d3.axisLeft(yName).tickSize(-width))
+                .select(".domain").remove();
+
+            // Compute kernel density estimation for each column:
+            const kde = kernelDensityEstimator(kernelEpanechnikov(0.715), x.ticks(40)); // increase this 40 for more accurate density.
+            const allDensity = [];
+            for (let i = 0; i < n; i++) {
+                let key = categories[i];
+                let density = kde(data.map(function(d){ return d[key]; }));
+                allDensity.push({key: key, density: density})
+            }
+
+            const l = [5, 3, 2, 1, 4, 2, 7, 3];
+            for (let i = 0; i < n; i++) {
+                let d = allDensity[i].density;
+                let k = 0;
+                for (let j = 0; j < d.length; j++) {
+                    if (d[j][0] === l[i]) {
+                        k = d[j][1]*10
+                    }
+                }
+                for (let j=0; j < d.length; j++) {
+                    d[j][1] /= k;
+                }
+            }
+
+            // Add areas
+            svg.selectAll("areas")
+                .data(allDensity)
+                .enter().append("path")
+                .attr("transform", function(d){ return("translate(0," + (yName(d.key)-height) +")") })
+                .attr("fill", function(d){
+                    let grp = d.key ;
+                    let index = categories.indexOf(grp);
+                    let value = allMeans[index];
+                    return myColor(value)
+                })
+                .datum(function(d){ return(d.density) })
+                .attr("opacity", 0.6)
+                .attr("stroke", "#000")
+                .attr("stroke-width", 0.2)
+                .attr("d",  d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function(d) { return x(d[0]); })
+                    .y(function(d) { return y(d[1]); })
+                )
+        });
+
+        // This is what I need to compute kernel density estimation
+        // X - 0 <= i*0,2 <= 11
+        // Data from one column
+        function kernelDensityEstimator(kernel, X) {
+            return function(V) {
+                return X.map(function(x) {
+                    return [x, d3.mean(V, function(v) { if (v) {return kernel(x - v);} })];
+                });
+            };
+        }
+        function kernelEpanechnikov(k) {
+            return function(v) {
+                return Math.abs(v /= k) <= 1 ? 0.75 * (1 - v * v) / k : 0;
+            };
+        }
+    </script>
+
+    <p>
+        1) Диаграмма показывает плотность распределения вероятности программировать то или иное количество часов в сутки,
+        в зависимости от того, какой кофе вы предпочитаете.
+    </p>
+    <p>
+        2) Цветовое оформление диаграммы показывает зависимость среднего времени, проведённого за программированием,
+        относительно выбора кофе.
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+            // set the dimensions and margins of the graph
+        const margin = {top: 120, right: 30, bottom: 50, left:110};
+        const width = 460 - margin.left - margin.right;
+        const height = 440 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeTypes.csv", function(data) {
+
+            // Get the different categories and count them
+            const categories = ["American Coffee", "Americano", "Caffè latte", "Cappuccino", "Doppio", "Espresso", "Nescafe", "Turkish"];
+            const n = categories.length;
+
+            // Compute the mean of each group
+            let allMeans = [];
+            for (let i in categories){
+                let currentGroup = categories[i];
+                let mean = d3.mean(data, function(d) { if (d[currentGroup]) {return +d[currentGroup]} });
+                allMeans.push(mean)
+            }
+
+            // Create a color scale using these means.
+            const myColor = d3.scaleSequential()
+                .domain([4.5, 8])
+                .interpolator(d3.interpolateViridis);
+
+            // Add X axis
+            const x = d3.scaleLinear()
+                .domain([0, 11])
+                .range([0, width]);
+            svg.append("g")
+                .attr("class", "xAxis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x).tickValues([0, 2, 4, 6, 8, 10]).tickSize(-height))
+                .select(".domain").remove();
+
+            // Add X axis label
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", width/2)
+                .attr("y", height + 40)
+                .style("font-size", "30")
+                .text("CodingHours");
+
+            // Create a Y scale for densities
+            const y = d3.scaleLinear()
+                .domain([0, 2])
+                .range([height, 0]);
+
+            // Create the Y axis for names
+            const yName = d3.scaleBand()
+                .domain(categories)
+                .range([0, height])
+                .paddingInner(1);
+            svg.append("g")
+                .attr("class", "xAxis")
+                .call(d3.axisLeft(yName).tickSize(-width))
+                .select(".domain").remove();
+
+            // Compute kernel density estimation for each column:
+            const kde = kernelDensityEstimator(kernelEpanechnikov(0.715), x.ticks(40)); // increase this 40 for more accurate density.
+            const allDensity = [];
+            for (let i = 0; i < n; i++) {
+                let key = categories[i];
+                let density = kde(data.map(function(d){ return d[key]; }));
+                allDensity.push({key: key, density: density})
+            }
+
+            const l = [5, 3, 2, 1, 4, 2, 7, 3];
+            for (let i = 0; i < n; i++) {
+                let d = allDensity[i].density;
+                let k = 0;
+                for (let j = 0; j < d.length; j++) {
+                    if (d[j][0] === l[i]) {
+                        k = d[j][1]*10
+                    }
+                }
+                for (let j=0; j < d.length; j++) {
+                    d[j][1] /= k;
+                }
+            }
+
+            // Add areas
+            svg.selectAll("areas")
+                .data(allDensity)
+                .enter().append("path")
+                .attr("transform", function(d){ return("translate(0," + (yName(d.key)-height) +")") })
+                .attr("fill", function(d){
+                    let grp = d.key ;
+                    let index = categories.indexOf(grp);
+                    let value = allMeans[index];
+                    return myColor(value)
+                })
+                .datum(function(d){ return(d.density) })
+                .attr("opacity", 0.6)
+                .attr("stroke", "#000")
+                .attr("stroke-width", 0.2)
+                .attr("d",  d3.line()
+                    .curve(d3.curveBasis)
+                    .x(function(d) { return x(d[0]); })
+                    .y(function(d) { return y(d[1]); })
+                )
+        });
+
+        // This is what I need to compute kernel density estimation
+        // X - 0 <= i*0,2 <= 11
+        // Data from one column
+        function kernelDensityEstimator(kernel, X) {
+            return function(V) {
+                return X.map(function(x) {
+                    return [x, d3.mean(V, function(v) { if (v) {return kernel(x - v);} })];
+                });
+            };
+        }
+        function kernelEpanechnikov(k) {
+            return function(v) {
+                return Math.abs(v /= k) <= 1 ? 0.75 * (1 - v * v) / k : 0;
+            };
+        }
+    </code></pre>
+
+</div>
+</body>
+</html>

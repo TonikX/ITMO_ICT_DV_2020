@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <style>
+        .axis {
+            opacity: 0.4;
+        }
+        .axis:hover {
+            opacity: 1;
+        }
+    </style>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            stroke: #4a0081;
+            stroke-width: 1.5px;
+            shape-rendering: crispEdges;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – samples (Coffee and Code)</h1>
+
+    <ul>
+        <li><a href="scribble.html">Scribble (line chart)</a></li>
+        <li><a href="line-chart.html">Line chart</a></li>
+        <li><a href="pie-chart.html">Pie chart</a></li>
+        <li>Parallel coordinates chart</li>
+        <li><a href="ridgeline-chart.html">Ridgeline chart</a></li>
+    </ul>
+
+    <p>
+        График параллельных координат позволяет сравнить особенность нескольких отдельных наблюдений по набору
+        числовых переменных. Каждая вертикальная полоса представляет переменную и часто имеет свой собственный масштаб.
+        Значения наносятся на график в виде серии линий, соединяющих оси в соответствии с набором переменных.
+        Диаграммы с параллельными координатами идеально подходят для сравнения одновременно большого количества переменных и анализа их взаимосвязей.
+    </p>
+    <p>
+        Источник: <a href="https://www.data-to-viz.com/graph/parallel.html" target="_blank">From Data To Viz</a>
+    </p>
+
+    <h2>Диаграмма</h2>
+
+    <div id="my_dataviz"></div>
+
+    <script>
+        // set the dimensions and margins of the graph
+        const margin = {top: 30, right: 50, bottom: 10, left: 50};
+        const width = 620 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+            // Color scale: give me a group name, I return a color
+            const color = d3.scaleOrdinal()
+                .domain(["Yes", "Sometimes", "No"])
+                .range(["lightblue", "violet", "purple"]);
+
+            // Here I set the list of dimension manually to control the order of axis:
+            const dimensions = ["CoffeeCupsPerDay", "CodingHours"];
+
+            // For each dimension, I build a linear scale. I store all in a y object
+            let y = {};
+            for (let i in dimensions) {
+                const name = dimensions[i];
+                y[name] = d3.scaleLinear()
+                    .domain([0,11]) // --> Same axis range for each group
+                    .range([height, 0])
+            }
+
+            // Build the X scale -> it find the best position for each Y axis
+            const x = d3.scalePoint()
+                .range([0, width - 140])
+                .padding(0.1)
+                .domain(dimensions);
+
+            // Highlight the group that is hovered
+            const highlight = function(d){
+
+                const selected_group = d["CodingWithoutCoffee"];
+
+                // First every group turns grey
+                d3.selectAll(".line")
+                    .transition().duration(300)
+                    .style("stroke", "lightgrey").style("opacity", "0.2");
+                // Second the hovered group takes its color
+                d3.selectAll("." + selected_group)
+                    .transition().duration(300)
+                    .style("stroke", color(selected_group)).style("opacity", "1")
+            };
+
+            // Unhighlight
+            let doNotHighlight = function(d){
+                d3.selectAll(".line")
+                    .transition().duration(1800).delay(1000)
+                    .style("stroke", function(d){ return(color(d["CodingWithoutCoffee"]))} ).style("opacity", "0.5")
+            };
+
+            // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
+            function path(d) {
+                return d3.line()(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+            }
+
+            // Draw the lines
+            svg.selectAll("myPath")
+                .data(data).enter().append("path")
+                .attr("class", function (d) { return "line " + d["CodingWithoutCoffee"] }) // 2 class for each line: 'line' and the group name
+                .attr("d",  path)
+                .style("stroke", function(d){ return color(d["CodingWithoutCoffee"])}).style("opacity", 0.5)
+                .on("mouseover", highlight).on("mouseleave", doNotHighlight );
+
+            // Draw the axis
+            svg.selectAll("myAxis")
+                // For each dimension of the dataset I add a 'g' element:
+                .data(dimensions).enter().append("g")
+                .attr("class", "axis")
+                // I translate this element to its right position on the x axis
+                .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+                // And I build the axis with the call function
+                .each(function(d) { d3.select(this).call(d3.axisLeft().ticks(5).scale(y[d])); })
+                // Add axis title
+                .append("text").style("text-anchor", "middle")
+                .attr("y", -9)
+                .text(function(d) { return d; }).style("fill", "black");
+
+            const sometimes = data.filter(function(d) { if (d["CodingWithoutCoffee"]=="Sometimes") {return d} });
+            const no = data.filter(function(d) { if (d["CodingWithoutCoffee"]=="No") {return d} });
+
+            // Handmade legend
+            svg.append("text").attr("x", 380).attr("y", 100).text("Coding without coffee?").style("font-size", "18px")
+                .attr("alignment-baseline","middle").style("font-style", "italic");
+            svg.append("circle").attr("cx", 380).attr("cy", 130).attr("r", 6).style("fill", "lightblue")
+                .data(data).on("mouseover", highlight).on("mouseleave", doNotHighlight );
+            svg.append("circle").attr("cx", 380).attr("cy", 160).attr("r", 6).style("fill", "violet")
+                .data(sometimes).on("mouseover", highlight).on("mouseleave", doNotHighlight );
+            svg.append("circle").attr("cx", 380).attr("cy", 190).attr("r", 6).style("fill", "purple")
+                .data(no).on("mouseover", highlight).on("mouseleave", doNotHighlight );
+            svg.append("text").attr("x", 400).attr("y", 130).text("Yes, coding without").style("font-size", "15px").attr("alignment-baseline","middle");
+            svg.append("text").attr("x", 400).attr("y", 160).text("Sometimes, without").style("font-size", "15px").attr("alignment-baseline","middle");
+            svg.append("text").attr("x", 400).attr("y", 190).text("No, coding with coffee").style("font-size", "15px").attr("alignment-baseline","middle")
+        });
+    </script>
+
+    <p>
+        Диаграмма показывает связь количества выпитых чашех кофе с продолжительностью кодинга в различных группах людей
+        (программисты сгруппированы по ответу на вопрос о кодинге без кофе)
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        // set the dimensions and margins of the graph
+        const margin = {top: 30, right: 50, bottom: 10, left: 50};
+        const width = 620 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+            // Color scale: give me a group name, I return a color
+            const color = d3.scaleOrdinal()
+                .domain(["Yes", "Sometimes", "No"])
+                .range(["lightblue", "violet", "purple"]);
+
+            // Here I set the list of dimension manually to control the order of axis:
+            const dimensions = ["CoffeeCupsPerDay", "CodingHours"];
+
+            // For each dimension, I build a linear scale. I store all in a y object
+            let y = {};
+            for (let i in dimensions) {
+                const name = dimensions[i];
+                y[name] = d3.scaleLinear()
+                    .domain([0,11]) // --> Same axis range for each group
+                    .range([height, 0])
+            }
+
+            // Build the X scale -> it find the best position for each Y axis
+            const x = d3.scalePoint()
+                .range([0, width - 140])
+                .padding(0.1)
+                .domain(dimensions);
+
+            // Highlight the group that is hovered
+            const highlight = function(d){
+
+                const selected_group = d["CodingWithoutCoffee"];
+
+                // First every group turns grey
+                d3.selectAll(".line")
+                    .transition().duration(300)
+                    .style("stroke", "lightgrey").style("opacity", "0.2");
+                // Second the hovered group takes its color
+                d3.selectAll("." + selected_group)
+                    .transition().duration(300)
+                    .style("stroke", color(selected_group)).style("opacity", "1")
+            };
+
+            // Unhighlight
+            let doNotHighlight = function(d){
+                d3.selectAll(".line")
+                    .transition().duration(1800).delay(1000)
+                    .style("stroke", function(d){ return(color(d["CodingWithoutCoffee"]))} ).style("opacity", "0.5")
+            };
+
+            // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
+            function path(d) {
+                return d3.line()(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+            }
+
+            // Draw the lines
+            svg.selectAll("myPath")
+                .data(data).enter().append("path")
+                .attr("class", function (d) { return "line " + d["CodingWithoutCoffee"] }) // 2 class for each line: 'line' and the group name
+                .attr("d",  path)
+                .style("stroke", function(d){ return color(d["CodingWithoutCoffee"])}).style("opacity", 0.5)
+                .on("mouseover", highlight).on("mouseleave", doNotHighlight );
+
+            // Draw the axis
+            svg.selectAll("myAxis")
+                // For each dimension of the dataset I add a 'g' element:
+                .data(dimensions).enter().append("g")
+                .attr("class", "axis")
+                // I translate this element to its right position on the x axis
+                .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+                // And I build the axis with the call function
+                .each(function(d) { d3.select(this).call(d3.axisLeft().ticks(5).scale(y[d])); })
+                // Add axis title
+                .append("text").style("text-anchor", "middle")
+                .attr("y", -9)
+                .text(function(d) { return d; }).style("fill", "black");
+
+            // Handmade legend
+            svg.append("text").attr("x", 380).attr("y", 100).text("Coding without coffee?").style("font-size", "18px").attr("alignment-baseline","middle").style("font-style", "italic");
+            svg.append("circle").attr("cx",380).attr("cy",130).attr("r", 6).style("fill", "lightblue");
+            svg.append("circle").attr("cx",380).attr("cy",160).attr("r", 6).style("fill", "violet");
+            svg.append("circle").attr("cx",380).attr("cy",190).attr("r", 6).style("fill", "purple");
+            svg.append("text").attr("x", 400).attr("y", 130).text("Yes, coding without").style("font-size", "15px").attr("alignment-baseline","middle");
+            svg.append("text").attr("x", 400).attr("y", 160).text("Sometimes, without").style("font-size", "15px").attr("alignment-baseline","middle");
+            svg.append("text").attr("x", 400).attr("y", 190).text("No, coding with coffee").style("font-size", "15px").attr("alignment-baseline","middle")
+        });
+    </code></pre>
+
+</div>
+</body>
+</html>

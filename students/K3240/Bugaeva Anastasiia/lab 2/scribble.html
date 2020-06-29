@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <style>
+        .axis {
+            opacity: 0.4;
+        }
+        .axis:hover {
+            opacity: 1;
+        }
+    </style>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            stroke: #4a0081;
+            stroke-width: 1.5px;
+            shape-rendering: crispEdges;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – samples (Coffee and Code)</h1>
+
+    <ul>
+        <li>Scribble (line chart)</li>
+        <li><a href="line-chart.html">Line chart</a></li>
+        <li><a href="pie-chart.html">Pie chart</a></li>
+        <li><a href="parallel-chart.html">Parallel coordinates chart</a></li>
+        <li><a href="ridgeline-chart.html">Ridgeline chart</a></li>
+    </ul>
+
+    <h3>
+        <i>"Я и визуализация"</i>
+    </h3>
+    <p>
+        Источник: <a href="https://img-gorod.ru/26/648/2664840_detail.jpg" target="_blank"><i>Лапки</i></a>
+    </p>
+
+    <h2>Диаграмма</h2>
+
+    <div id="my_dataviz"></div>
+
+    <script>
+        // set the dimensions and margins of the graph
+        const margin = {top: 30, right: 150, bottom: 70, left: 60};
+        const width = 660 - margin.left - margin.right;
+        const height = 380 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+            // Add X axis
+            const x = d3.scaleLinear()
+                .domain([0, 11])
+                .range([0, width]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            // Add Y axis
+            const y = d3.scaleLinear()
+                .domain([0, 8])
+                .range([height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .append("text").style("text-anchor", "middle")
+                .attr("y", -9).text("CoffeeCupsPerDay").style("fill", "black");
+
+            // color palette
+            const res = ["CodingHours", "Model"]; // list of group names
+            const color = d3.scaleOrdinal()
+                .domain(res)
+                .range(['#B4C7E7', '#6039b8']);
+
+            // Draw the data line
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", color("CodingHours"))
+                .attr("stroke-width", 2)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d["CodingHours"]) })
+                    .y(function(d) { return y(d["CoffeeCupsPerDay"]) }).curve(d3.curveCardinalClosed));
+
+            const model = [{"x": 1, "y": 1}, { "x": 2.725, "y": 3.425}, {"x": 4.8, "y": 5.4}, {"x": 7.225, "y": 6.925}, {"x": 10, "y": 8}];
+
+            // Draw the model line
+            // svg.append("path")
+            //     .datum(model)
+            //     .attr("class", "model")
+            //     .attr("fill", "none")
+            //     .attr("stroke", color("Model"))
+            //     .attr("stroke-width", 4)
+            //     .attr("d", d3.line()
+            //         .x(function(d) { return x(d["x"]) })
+            //         .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+
+            // Highlight the group that is hovered
+            const highlight = function(d){
+
+                svg.append("path")
+                    .datum(model)
+                    .attr("class", "model")
+                    .attr("fill", "none")
+                    .attr("stroke", color("Model"))
+                    .attr("stroke-width", 4)
+                    .attr("d", d3.line()
+                        .x(function(d) { return x(d["x"]) })
+                        .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+            };
+
+            svg.append("text").attr("text-anchor", "middle").attr("x", width/2).attr("y", height + 50).style("font-size", "30").text("CodingHours");
+            svg.append("circle").attr("cx", width+10).attr("cy", height/2-15).attr("r", 6).style("fill", color("CodingHours"));
+            svg.append("circle").attr("cx", width+10).attr("cy", height/2+15).attr("r", 6).style("fill", color("Model"))
+                .data(model).on("click", highlight);
+            svg.append("text").attr("x", width+30).attr("y", height/2-15).text("Data").style("font-size", "15px").attr("alignment-baseline","middle");
+            svg.append("text").attr("x", width+30).attr("y", height/2+15).text("Condition line").style("font-size", "15px").attr("alignment-baseline","middle");
+        })
+    </script>
+
+    <p>
+        Диаграмма показывает мою первую попытку сделать линейный график. К моему удивлению, даже из этого, казалось бы,
+        неудачного графика, можно сделать выводы: мы можем заметить, что существует такая функция (фиолетовый граик),
+        относительно которой все наши данные (за редким исключением) оказываются с одной стороны, причём пустого пространства
+        с этой стороны почти не остаётся. Таким образом, можно наблюдать, что зависимость часов кодинга от количества чашек кофе
+        подчиняется некому конкретному условию. Например, из этого графика следует, что невозможно кодить мало,
+        если ты выпил много кофе, но возможно наоборот: выпить всего одну чашку и работать весь день.
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        // set the dimensions and margins of the graph
+        const margin = {top: 30, right: 150, bottom: 70, left: 60};
+        const width = 660 - margin.left - margin.right;
+        const height = 380 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/CoffeeAndCode.csv", function(data) {
+
+            // Add X axis --> it is a date format
+            const x = d3.scaleLinear()
+                .domain([0, 11])
+                .range([0, width]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            // Add Y axis
+            const y = d3.scaleLinear()
+                .domain([0, 8])
+                .range([height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .append("text").style("text-anchor", "middle")
+                .attr("y", -9).text("CoffeeCupsPerDay").style("fill", "black");
+
+            // color palette
+            const res = ["CodingHours", "Model"]; // list of group names
+            const color = d3.scaleOrdinal()
+                .domain(res)
+                .range(['#B4C7E7','#6039b8']);
+
+            // Draw the data line
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", color("CodingHours"))
+                .attr("stroke-width", 2)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d["CodingHours"]) })
+                    .y(function(d) { return y(d["CoffeeCupsPerDay"]) }).curve(d3.curveCardinalClosed));
+
+            const model = [{"x": 1, "y": 1}, { "x": 2.725, "y": 3.425}, {"x": 4.8, "y": 5.4}, {"x": 7.225, "y": 6.925}, {"x": 10, "y": 8}];
+
+            // Draw the model line
+            svg.append("path")
+                .datum(model)
+                .attr("fill", "none")
+                .attr("stroke", color("Model"))
+                .attr("stroke-width", 4)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d["x"]) })
+                    .y(function(d) { return y(d["y"]) }).curve(d3.curveCardinal));
+
+            svg.append("text").attr("text-anchor", "middle").attr("x", width/2).attr("y", height + 50).style("font-size", "30").text("CodingHours");
+            svg.append("circle").attr("cx", width+10).attr("cy", height/2-15).attr("r", 6).style("fill", color("CodingHours"));
+            svg.append("circle").attr("cx", width+10).attr("cy", height/2+15).attr("r", 6).style("fill", color("Model"));
+            svg.append("text").attr("x", width+30).attr("y", height/2-15).text("Data").style("font-size", "15px").attr("alignment-baseline","middle");
+            svg.append("text").attr("x", width+30).attr("y", height/2+15).text("Condition line").style("font-size", "15px").attr("alignment-baseline","middle");
+        })
+    </code></pre>
+
+</div>
+</body>
+</html>
