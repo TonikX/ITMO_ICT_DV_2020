@@ -1,0 +1,6 @@
+[submodule "students/k3220/Moroz_Ilya/Lr2/st-retrospect-admin"]
+	path = students/k3220/Moroz_Ilya/Lr2/st-retrospect-admin
+	url = git@github.com:dh-center/st-retrospect-admin.git
+[submodule "students/k3220/Moroz_Ilya/Lr3/st-retrospect-frontend"]
+	path = students/k3220/Moroz_Ilya/Lr3/st-retrospect-frontend
+	url = git@github.com:dh-center/st-retrospect-frontend.git
