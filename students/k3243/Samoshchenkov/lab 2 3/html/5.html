@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.arc text {
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+.arc path {
+  stroke: #fff;
+}
+
+</style>
+<head>
+<script src="https://d3js.org/d3.v4.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/">Лабораторная работа №2</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+
+      <li class="nav-item">
+        <a class="nav-link" href="/1.html">График №1</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/2.html">График №2</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/3.html">График №3</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/4.html">График №4</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/5.html">График №5</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/story.html">Storytelling</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<h3>График описывает распределение форматов шоу</h3>
+<div id="type_graph"></div>
+
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+
+<script>
+
+// set the dimensions and margins of the graph
+var width = 450
+    height = 450
+    margin = 40
+
+// The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+var radius = Math.min(width, height) / 2 - margin
+
+// append the svg object to the div called 'my_dataviz'
+var svg = d3.select("#type_graph")
+  .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+// Create dummy data
+var data = {TV: 4271, Movie: 2624, Music: 849, OVA: 3608, ONA: 1144, Special: 1948, Uknown: 30}
+
+// set the color scale
+var color = d3.scaleOrdinal()
+  .domain(data)
+  .range(d3.schemeSet2);
+
+// Compute the position of each group on the pie:
+var pie = d3.pie()
+  .value(function(d) {return d.value; })
+var data_ready = pie(d3.entries(data))
+// Now I know that group A goes from 0 degrees to x degrees and so on.
+
+// shape helper to build arcs:
+var arcGenerator = d3.arc()
+  .innerRadius(0)
+  .outerRadius(radius)
+
+// Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+svg
+  .selectAll('mySlices')
+  .data(data_ready)
+  .enter()
+  .append('path')
+    .attr('d', arcGenerator)
+    .attr('fill', function(d){ return(color(d.data.key)) })
+    .attr("stroke", "black")
+    .style("stroke-width", "2px")
+    .style("opacity", 0.7)
+
+// Now add the annotation. Use the centroid method to get the best coordinates
+svg
+  .selectAll('mySlices')
+  .data(data_ready)
+  .enter()
+  .append('text')
+  .text(function(d){ return "grp " + d.data.key})
+  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+  .style("text-anchor", "middle")
+  .style("font-size", 17)
+
+
+</script>
