@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Bar chart</title>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+
+
+    <style type="text/css">
+
+        body{
+            background: rgb(34,193,195);
+            background: linear-gradient(0deg, rgba(34,193,195,0.39) 0%, rgba(255,222,193,0.43) 100%);}
+        text {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: darkslategray;
+        }
+
+        .container {
+            margin: auto;
+            max-width: 1024px;
+        }
+
+        .svg-container {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+
+        }
+        .links {
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(64,199,129);
+            box-shadow: 0 -3px rgb(53,167,110) inset;
+            transition: 0.2s;
+        }
+        .links:hover { background: rgb(53, 167, 110); }
+        .links:active {
+            background: rgb(33,147,90);
+            box-shadow: 0 3px rgb(33,147,90) inset;
+        }
+
+        .linksUn{
+            font-weight: 700;
+            color: black;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(213, 239, 129);
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>D3.js – Video games</h1>
+
+
+    <p class="linksUn">Bar chart</p>
+    <a class="links" href="line-chart.html">Line chart</a>
+    <a class="links" href="treemap.html">Treemap</a>
+    <a class="links" href="pie-chart.html">Pie chart</a>
+    <a class="links" href="lolipop-chart.html">Lolipop chart</a>
+    <a class="links" href="index.html">Back</a>
+
+    <p>
+        <br>
+        Классическая столбиковая диаграмма оперирует горизонтальными или вертикальными столбцами для демонстрации
+        дискретных, числовых сравнений между разными категориями.
+    </p>
+    <p>
+        Источник: <a href="https://datavizcatalogue.com/RU/metody/stolbikovaja_diagramma.html" target="_blank">Каталог
+        Визуализации
+        Данных</a>
+    </p>
+
+    <h2>Продажи по Европе</h2>
+
+    <script type="text/javascript">
+        const margin = {top: 80, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const svg = d3.select("h2")
+            .append("div").attr("class", "svg-container")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+
+        d3.csv("for-bar-chart.csv", function (error, data) {
+            const dataset = d3.layout.stack()(["Europe"].map(function (publishSales) {
+                return data.map(function (d) {
+                    return {x: d.Publisher, y: +d[publishSales]};
+                });
+            }));
+
+            const x = d3.scale.ordinal()
+                .domain(dataset[0].map(function (d) {
+                    return d.x;
+                }))
+                .rangeRoundBands([30, width - 10], 0.5);
+
+            const y = d3.scale.linear()
+                .domain([0, d3.max(dataset, function (d) {
+                    return d3.max(d, function (d) {
+                        return d.y0 + d.y + 2;
+                    });
+                })])
+                .range([height, 0]);
+
+            const colors = ["#69b3a2"];
+
+            const yAxis = d3.svg.axis().scale(y).orient("left").ticks(10).tickSize(-width, 0, 0).tickFormat(function (d) {
+                return d
+            });
+
+            const xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(function (d) {
+                return d
+            });
+
+            svg.append("g").attr("class", "y axis").attr("transform", "translate(" + 30 + ",0)").call(yAxis);
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", "-.55em")
+                .attr("transform", "translate(10,5)rotate(-30)" );
+
+            const groups = svg.selectAll("g.cost").data(dataset).enter().append("g").attr("class", "cost").style("fill", function (d, i) {
+                return colors[i];
+            });
+
+            const rect = groups.selectAll("rect").data(function (d) {
+                return d;
+            }).enter().append("rect").attr("x", function (d) {
+                return x(d.x);
+            }).attr("y", function (d) {
+                return y(d.y0 + d.y);
+            }).attr("height", function (d) {
+                return y(d.y0) - y(d.y0 + d.y);
+            }).attr("width", x.rangeBand()).on("mouseover", function () {
+                tooltip.style("display", null);
+            }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 25;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.y);
+            });
+
+            const legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", "translate(30,0)");
+
+            legend.append("rect").attr("x", width - 18).attr("width", 18).attr("height", 18).style("fill", function (d, i) {
+                return colors.slice().reverse()[i];
+            });
+
+            legend.append("text").attr("x", width + 5).attr("y", 9).attr("dy", ".35em").style("text-anchor", "start").text("Продажи");
+
+            const tooltip = svg.append("g").attr("class", "my-tooltip").style("display", "none");
+            tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+            tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "12px").attr("font-weight", "bold");
+        });
+    </script>
+
+    <p>
+        Описание: данная диаграмма позволяет сравнить успех каждого издателя по Европе
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+            const margin = {top: 80, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const svg = d3.select("h2")
+            .append("div").attr("class", "svg-container")
+            .append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+
+        d3.csv("df1.csv", function (error, data) {
+            const dataset = d3.layout.stack()(["Europe"].map(function (publishSales) {
+                return data.map(function (d) {
+                    return {x: d.Publisher, y: +d[publishSales]};
+                });
+            }));
+
+            const x = d3.scale.ordinal()
+                .domain(dataset[0].map(function (d) {
+                    return d.x;
+                }))
+                .rangeRoundBands([30, width - 10], 0.5);
+
+            const y = d3.scale.linear()
+                .domain([0, d3.max(dataset, function (d) {
+                    return d3.max(d, function (d) {
+                        return d.y0 + d.y + 2;
+                    });
+                })])
+                .range([height, 0]);
+
+            const colors = ["rgba(85,77,239,0.93)"];
+
+            const yAxis = d3.svg.axis().scale(y).orient("left").ticks(10).tickSize(-width, 0, 0).tickFormat(function (d) {
+                return d
+            });
+
+            const xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(function (d) {
+                return d
+            });
+
+            svg.append("g").attr("class", "y axis").attr("transform", "translate(" + 30 + ",0)").call(yAxis);
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", "-.55em")
+                .attr("transform", "translate(10,5)rotate(-30)" );
+
+            const groups = svg.selectAll("g.cost").data(dataset).enter().append("g").attr("class", "cost").style("fill", function (d, i) {
+                return colors[i];
+            });
+
+            const rect = groups.selectAll("rect").data(function (d) {
+                return d;
+            }).enter().append("rect").attr("x", function (d) {
+                return x(d.x);
+            }).attr("y", function (d) {
+                return y(d.y0 + d.y);
+            }).attr("height", function (d) {
+                return y(d.y0) - y(d.y0 + d.y);
+            }).attr("width", x.rangeBand()).on("mouseover", function () {
+                tooltip.style("display", null);
+            }).on("mouseout", function () {
+                tooltip.style("display", "none");
+            }).on("mousemove", function (d) {
+                var xPosition = d3.mouse(this)[0] - 15;
+                var yPosition = d3.mouse(this)[1] - 25;
+                tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                tooltip.select("text").text(d.y);
+            });
+
+            const legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", "translate(30,0)");
+
+            legend.append("rect").attr("x", width - 18).attr("width", 18).attr("height", 18).style("fill", function (d, i) {
+                return colors.slice().reverse()[i];
+            });
+
+            legend.append("text").attr("x", width + 5).attr("y", 9).attr("dy", ".35em").style("text-anchor", "start").text("Продажи");
+
+            const tooltip = svg.append("g").attr("class", "my-tooltip").style("display", "none");
+            tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+            tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "12px").attr("font-weight", "bold");
+        });
+    </code></pre>
+</div>
+</body>
+</html>

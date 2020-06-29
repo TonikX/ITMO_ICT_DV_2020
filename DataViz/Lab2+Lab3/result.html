@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+
+        body{
+            background: rgb(34,193,195);
+            background: linear-gradient(0deg, rgba(34,193,195,0.39) 0%, rgba(255,222,193,0.43) 100%);}
+        text {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+        path.line {
+            fill: none;
+            stroke: rgba(57, 179, 35, 0.99);
+            stroke-width: 3px;
+        }
+
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: darkslategray;
+        }
+
+        .container {
+            margin: auto;
+            max-width: 1024px;
+        }
+
+        .svg-container {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+
+        }
+        .links {
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(64,199,129);
+            box-shadow: 0 -3px rgb(53,167,110) inset;
+            transition: 0.2s;
+        }
+        .links:hover { background: rgb(53, 167, 110); }
+        .links:active {
+            background: rgb(33,147,90);
+            box-shadow: 0 3px rgb(33,147,90) inset;
+        }
+
+        .linksUn{
+            font-weight: 700;
+            color: black;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(213, 239, 129);
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Завершение курса</h1>
+
+
+    <p>
+        <br>
+        Был выбран датасет с сайта
+        <a href="https://www.kaggle.com/sidtwr/videogames-sales-dataset?select=Video_Games_Sales_as_at_22_Dec_2016.csv" target="_blank" style="">
+            Kaggle</a> - продажи игр на PS4 с 2013 по 2020 год.
+    </p>
+    <p>
+        <img src=dataset.jpg height="240" width="730">
+    </p>
+
+    <p>
+        В датасете для каждой игры корректно отображаются год выпуска, жанр, издателя, а также продажи по регионам.
+    </p>
+
+    <h2>Извлечение информации</h2>
+
+    <p>
+        Датасет не отличается переизбытком лишней информации, поэтому с помощью него можно провести
+        некоторое количество вполне конкретных зависимостей:
+    </p>
+    <p>
+        <iframe title="Game releases" aria-label="Interactive area chart" id="datawrapper-chart-HgFW8" src="https://datawrapper.dwcdn.net/HgFW8/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="600"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+    </script>
+    </p>
+    <p>
+        <iframe title="Sales around World" aria-label="chart" id="datawrapper-chart-55MWP" src="https://datawrapper.dwcdn.net/55MWP/2/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="313"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+    </script>
+    </p>
+
+
+
+</div>
+</body>
+</html>

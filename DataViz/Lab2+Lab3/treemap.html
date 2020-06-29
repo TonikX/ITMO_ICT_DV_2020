@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Treemap</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+
+        body{
+            background: rgb(34,193,195);
+            background: linear-gradient(0deg, rgba(34,193,195,0.39) 0%, rgba(255,222,193,0.43) 100%);}
+        text {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+        path.line {
+            fill: none;
+            stroke: rgba(57, 179, 35, 0.99);
+            stroke-width: 3px;
+        }
+
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: darkslategray;
+        }
+
+        .container {
+            margin: auto;
+            max-width: 1024px;
+        }
+
+        .svg-container {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+
+        }
+        .links {
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(64,199,129);
+            box-shadow: 0 -3px rgb(53,167,110) inset;
+            transition: 0.2s;
+        }
+        .links:hover { background: rgb(53, 167, 110); }
+        .links:active {
+            background: rgb(33,147,90);
+            box-shadow: 0 3px rgb(33,147,90) inset;
+        }
+
+        .linksUn{
+            font-weight: 700;
+            color: black;
+            text-decoration: none;
+            padding: .8em 1em calc(.8em + 3px);
+            border-radius: 5px;
+            background: rgb(213, 239, 129);
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>D3.js – Video games</h1>
+
+
+    <p class="linksUn">Chart 3</p>
+    <a class="links" href="line-chart.html">Line chart</a>
+    <a class="links" href="bar-chart.html">Bar chart</a>
+    <a class="links" href="pie-chart.html">Pie chart</a>
+    <a class="links" href="lolipop-chart.html">Lolipop chart</a>
+    <a class="links" href="index.html">Back</a>
+
+
+    <p>
+        <br>
+        Древовидная карта – это альтернативный по отношению к древовидной диаграмме метод визуализации иерархической структуры,
+        отображающий количественные значения по каждой категории посредством размера области.
+    </p>
+    <p>
+        Источник: <a href="https://datavizcatalogue.com/RU/metody/drevovidnaja_karta.html" target="_blank" style="">Каталог
+        Визуализации
+        Данных</a>
+    </p>
+
+    <h2>Древовидная карта релизов в 2016 году</h2>
+    <div id="diagram"></div>
+
+    <script type="text/javascript">
+
+        var margin = {top: 10, right: 10, bottom: 10, left: 10},
+            width = 445 - margin.left - margin.right,
+            height = 445 - margin.top - margin.bottom;
+
+        var svg = d3.select("#diagram")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv('for-treemap.csv', function(data) {
+            var root = d3.stratify()
+                .id(function(d) { return d.Genre; })
+                .parentId(function(d) { return d.parent; })
+                (data);
+            root.sum(function(d) { return +d.y2016 })
+
+            d3.treemap().size([width, height]).padding(10)(root)
+
+
+            function randColor() {
+                var r = Math.floor(Math.random() * (256)),
+                    g = Math.floor(Math.random() * (256)),
+                    b = Math.floor(Math.random() * (256));
+                return '#' + r.toString(16) + g.toString(16) + b.toString(16);
+            }
+            svg
+                .selectAll("rect")
+                .data(root.leaves())
+                .enter()
+                .append("rect")
+                .attr('x', function (d) { return d.x0; })
+                .attr('y', function (d) { return d.y0; })
+                .attr('width', function (d) { return d.x1 - d.x0; })
+                .attr('height', function (d) { return d.y1 - d.y0; })
+                .style("stroke", "black")
+                .style("fill", randColor());
+
+            svg
+                .selectAll("text")
+                .data(root.leaves())
+                .enter()
+                .append("text")
+                .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+                .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
+                .text(function(d){ return d.data.Genre})
+                .attr("font-size", "15px")
+                .attr("fill", "white")
+        })
+    </script>
+
+    <p>
+        Описание: эта древовидная карта составлена для 2016 года - по размеру областей можно оценить, в каком жанре в этом году
+        было выпущено больше всего игр.
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        var margin = {top: 10, right: 10, bottom: 10, left: 10},
+            width = 445 - margin.left - margin.right,
+            height = 445 - margin.top - margin.bottom;
+
+        var svg = d3.select("#diagram")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv('genreByYear.csv', function(data) {
+            var root = d3.stratify()
+                .id(function(d) { return d.Genre; })
+                .parentId(function(d) { return d.parent; })
+                (data);
+            root.sum(function(d) { return +d.y2016 })
+
+            d3.treemap().size([width, height]).padding(10)(root)
+
+
+            function randColor() {
+                var r = Math.floor(Math.random() * (256)),
+                    g = Math.floor(Math.random() * (256)),
+                    b = Math.floor(Math.random() * (256));
+                return '#' + r.toString(16) + g.toString(16) + b.toString(16);
+            }
+            svg
+                .selectAll("rect")
+                .data(root.leaves())
+                .enter()
+                .append("rect")
+                .attr('x', function (d) { return d.x0; })
+                .attr('y', function (d) { return d.y0; })
+                .attr('width', function (d) { return d.x1 - d.x0; })
+                .attr('height', function (d) { return d.y1 - d.y0; })
+                .style("stroke", "black")
+                .style("fill", randColor());
+
+            svg
+                .selectAll("text")
+                .data(root.leaves())
+                .enter()
+                .append("text")
+                .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+                .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
+                .text(function(d){ return d.data.Genre})
+                .attr("font-size", "15px")
+                .attr("fill", "white")
+        })
+    </code></pre>
+
+</div>
+</body>
+</html>
