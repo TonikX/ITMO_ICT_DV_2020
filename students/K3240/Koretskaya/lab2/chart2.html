@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify 2000</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style type="text/css">
+        text {
+            font-family: arial,serif;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: rgba(102, 55, 135, 0.5);
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+
+        #nav p.section-title{
+            color: #7fc9b8;
+            text-align: center;
+            margin-top: 50px
+        }
+
+        #nav .nav-item .nav-link:hover {
+            color: #7fc9b8;
+            font-weight: bold;
+            background-color: transparent;
+            border-color: transparent;
+        }
+        #nav .nav-item, .nav-link {
+            color: #7fc9b8;
+            font-size: 20px;
+            border-bottom: 1px solid transparent;
+            border-top-left-radius: .25rem;
+            border-top-right-radius: .25rem;
+            margin-bottom: 25px;
+            margin-top: 25px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container-fluid" id="nav">
+    <p class="section-title h1">Spotify Top 2000</p>
+    <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link" href="chart1.html">Chart 1</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart2.html">Chart 2</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart3.html">Chart 3</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart4.html">Chart 4</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart5.html">Chart 5</a>
+        </li>
+    </ul>
+</div>
+<div class="containter">
+    <h3>Adele popularity</h3>
+
+    <p>
+        Линейный график показывает рост популярности певицы Adele за 8 лет
+    </p>
+
+    <div id="my_dataviz"></div>
+
+    <script type="text/javascript">
+        const parseDate = d3.time.format("%Y").parse;
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const xNudge = 50, yNudge = 20;
+        let max = 0;
+        let minDate = new Date(), maxDate = new Date();
+        let preTotal = 0;
+
+        d3.csv("data/data2.csv")
+            .row(function (d) {
+                return {
+                    year: parseDate(d.year),
+                    price: preTotal += Number(d.popularity),
+                };
+            })
+            .get(function (error, rows) {
+                console.log(rows);
+
+                max = d3.max(rows, function (d) {
+                    return d.price;
+                });
+                minDate = d3.min(rows, function (d) {
+                    return d.year;
+                });
+                maxDate = d3.max(rows, function (d) {
+                    return d.year;
+                });
+
+                const y = d3.scale.linear().domain([0, max]).range([height, 0]);
+                const x = d3.time.scale().domain([minDate, maxDate]).range([0, width]);
+
+                const yAxis = d3.svg.axis().orient("left").scale(y);
+                const xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format("%Y"));
+
+                let line = d3.svg.line().x(function (d) {
+                    return x(d.year);
+                }).y(function (d) {
+                    return y(d.price);
+                }).interpolate("cardinal");
+
+                const svg = d3.select("#my_dataviz").append("div").attr("class", "svg-containter").append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+                let chartGroup = svg.append("g").attr("class", "chartGroup").attr("transform", "translate(" + xNudge + "," + yNudge + ")");
+
+                chartGroup.append("path").attr("class", "line").attr("d", function (d) {
+                    return line(rows);
+                });
+                chartGroup.append("g").attr("class", "axis x").attr("transform", "translate(0," + height + ")").call(xAxis);
+                chartGroup.append("g").attr("class", "axis y").call(yAxis);
+            });
+    </script>
+
+    <h3>Код</h3>
+
+    <pre><code>
+        const parseDate = d3.time.format("%Y").parse;
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const xNudge = 50, yNudge = 20;
+        let max = 0;
+        let minDate = new Date(), maxDate = new Date();
+        let preTotal = 0;
+
+        d3.csv("data/data2.csv")
+            .row(function (d) {
+                return {
+                    year: parseDate(d.year),
+                    price: preTotal += Number(d.popularity),
+                };
+            })
+            .get(function (error, rows) {
+                console.log(rows);
+
+                max = d3.max(rows, function (d) {
+                    return d.price;
+                });
+                minDate = d3.min(rows, function (d) {
+                    return d.year;
+                });
+                maxDate = d3.max(rows, function (d) {
+                    return d.year;
+                });
+
+                const y = d3.scale.linear().domain([0, max]).range([height, 0]);
+                const x = d3.time.scale().domain([minDate, maxDate]).range([0, width]);
+
+                const yAxis = d3.svg.axis().orient("left").scale(y);
+                const xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format("%Y"));
+
+                let line = d3.svg.line().x(function (d) {
+                    return x(d.year);
+                }).y(function (d) {
+                    return y(d.price);
+                }).interpolate("cardinal");
+
+                const svg = d3.select("h2").append("div").attr("class", "svg-containter").append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+                let chartGroup = svg.append("g").attr("class", "chartGroup").attr("transform", "translate(" + xNudge + "," + yNudge + ")");
+
+                chartGroup.append("path").attr("class", "line").attr("d", function (d) {
+                    return line(rows);
+                });
+                chartGroup.append("g").attr("class", "axis x").attr("transform", "translate(0," + height + ")").call(xAxis);
+                chartGroup.append("g").attr("class", "axis y").call(yAxis);
+            });
+    </code></pre>
+</div>
+</body>
+</html>

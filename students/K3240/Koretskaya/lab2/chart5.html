@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify 2000</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+
+        #nav p.section-title{
+            color: #7fc9b8;
+            text-align: center;
+            margin-top: 50px
+        }
+
+        #nav .nav-item .nav-link:hover {
+            color: #7fc9b8;
+            font-weight: bold;
+            background-color: transparent;
+            border-color: transparent;
+        }
+        #nav .nav-item, .nav-link {
+            color: #7fc9b8;
+            font-size: 20px;
+            border-bottom: 1px solid transparent;
+            border-top-left-radius: .25rem;
+            border-top-right-radius: .25rem;
+            margin-bottom: 25px;
+            margin-top: 25px;
+        }
+        text {
+            font-family: arial,serif;
+            font-size: 25px;
+        }
+    </style>
+
+</head>
+<body>
+<div class="container-fluid" id="nav">
+    <p class="section-title h1">Spotify Top 2000</p>
+    <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link" href="chart1.html">Chart 1</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart2.html">Chart 2</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart3.html">Chart 3</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart4.html">Chart 4</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="chart5.html">Chart 5</a>
+        </li>
+    </ul>
+</div>
+
+<div class="container">
+    <h3>Tracks with "Love"</h3>
+    <p>Круговая диграмма отражает количество треков за несколько десятилетий, в названии котоых присутствует слово "love"</p>
+    <div id="my_dataviz"></div>
+    <script>
+
+        var width = 960,
+            height = 500,
+            radius = Math.min(width, height) / 2;
+
+        var color = d3.scale.ordinal()
+            .range(["#FFA07A", "#FF69B4", "#00FA9A", "#FFFF00", "#00FFFF", "#8B008B"]);
+
+        var arc = d3.svg.arc()
+            .outerRadius(radius - 10)
+            .innerRadius(0);
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) { return d.value; });
+
+        var svg = d3.select("#my_dataviz").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        d3.csv("data/data5.csv", function(error, data) {
+
+            data.forEach(function(d) {
+                d.value = +d.value;
+            });
+
+            var g = svg.selectAll(".arc")
+                .data(pie(data))
+                .enter().append("g")
+                .attr("class", "arc");
+
+            g.append("path")
+                .attr("d", arc)
+                .attr("data-legend", function(d) { return d.data.label; })
+                .attr("data-legend-pos", function(d, i) { return i; })
+                .style("fill", function(d) { return color(d.data.label); });
+
+            g.append("text")
+                .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+                .attr("dy", ".35em")
+                .style("text-anchor", "middle");
+
+            svg.append('g')
+                .attr('class', 'legend')
+                .selectAll('text')
+                .data(pie(data))
+                .enter()
+                .append('text')
+                .text(function(d) { return '• ' + d.data.label; })
+                .attr('fill', function(d) { return color(d.data.label); })
+                .attr('y', function(d, i) { return 35 * i; })
+                .attr('x', function(d, i) { return 320; });
+        });
+
+    </script>
+
+    <h3> Код </h3>
+    <pre><code>
+        var width = 960,
+            height = 500,
+            radius = Math.min(width, height) / 2;
+
+        var color = d3.scale.ordinal()
+            .range(["#FFA07A", "#FF69B4", "#00FA9A", "#FFFF00", "#00FFFF", "#8B008B"]);
+
+        var arc = d3.svg.arc()
+            .outerRadius(radius - 10)
+            .innerRadius(0);
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) { return d.value; });
+
+        var svg = d3.select("#my_dataviz").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        d3.csv("data/data5.csv", function(error, data) {
+
+            data.forEach(function(d) {
+                d.value = +d.value;
+            });
+
+            var g = svg.selectAll(".arc")
+                .data(pie(data))
+                .enter().append("g")
+                .attr("class", "arc");
+
+            g.append("path")
+                .attr("d", arc)
+                .attr("data-legend", function(d) { return d.data.label; })
+                .attr("data-legend-pos", function(d, i) { return i; })
+                .style("fill", function(d) { return color(d.data.label); });
+
+            g.append("text")
+                .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+                .attr("dy", ".35em")
+                .style("text-anchor", "middle");
+
+            svg.append('g')
+                .attr('class', 'legend')
+                .selectAll('text')
+                .data(pie(data))
+                .enter()
+                .append('text')
+                .text(function(d) { return '• ' + d.data.label; })
+                .attr('fill', function(d) { return color(d.data.label); })
+                .attr('y', function(d, i) { return 35 * i; })
+                .attr('x', function(d, i) { return 320; });
+        });
+    </code></pre>
+</div>
+
+</body>
+</html>
