@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="containter" id="main">
+    <h2>Диаграмма</h2>
+    <ul>
+        <li><a href="FirstDiagram.html">Количество заездов каждого типа</a></li>
+        <li><a href="SecondDiagram.html">Распределение заездов по расстоянию и средней скорости</a></li>
+        <li><a href="ThirdDiagram.html">Связь максимальной и средней скорости</a></li>
+        <li><a href="FourthDiagram.html">Количество заездов в месяц</a></li>
+        <li><a href="FifthDiagram.html">10 самых длинных заездов и затраченные на них калории</a></li>
+    </ul>
+    <script type="text/javascript">
+        var width = 960,
+            height = 500,
+            radius = Math.min(width, height) / 2;
+
+        var color = d3.scale.ordinal()
+            .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+        var arc = d3.svg.arc()
+            .outerRadius(radius - 10)
+            .innerRadius(0);
+
+        var labelArc = d3.svg.arc()
+            .outerRadius(radius - 40)
+            .innerRadius(radius - 40);
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function (d) {
+                return d.count;
+            });
+
+        var svg = d3.select("div").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        d3.csv("../data/dc_1.csv", type, function (error, data) {
+            if (error) throw error;
+
+            console.log(pie(data))
+
+            var g = svg.selectAll(".arc")
+                .data(pie(data))
+                .enter().append("g")
+                .attr("class", "arc");
+
+            g.append("path")
+                .attr("d", arc)
+                .style("fill", function (d) {
+                    return color(d.data.type);
+                });
+
+            g.append("text")
+                .attr("transform", function (d) {
+                    return "translate(" + labelArc.centroid(d) + ")";
+                })
+                .attr("dy", ".35em")
+                .text(function (d) {
+                    return d.data.type;
+                });
+        });
+
+        function type(d) {
+            d.count = +d.count;
+            return d;
+        }
+    </script>
+</div>
+</body>
+
+</html>
