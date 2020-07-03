@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Статистика Преступлений</title>
+	<style type="text/css">
+		
+		body{
+			margin-left: 15%;
+			margin-right: 15%;
+		}
+		.chart {
+			font-family: Roboto,sans-serif;
+			color: #181818;
+			font-size: 14px;
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+
+<h1>Статистика убийств в США 1980-2014</h1>
+
+<p> Анализируемый датасет содержит данные по совершенным убийствам в США с 1980 по 2014. Датасет был взят с сайта <a href="https://www.kaggle.com/murderaccountability/homicide-reports"> kaggle.com</a>. Данный датасет является оффициальным докладом ФБР. Содержит около 650.000 записей, которые включают в себя пол, возраст, рассовую принадлежность совершивших преступление и пострадавших, а также орудия убийств, место преступления, связь между первыми и вторыми и т.д. <br> В данном анализе я решил рассмотреть как выбор орудия для совершения преступления зависит от пола преступника, рассовую принадлежность убийц, а также выбор жертв у мужичн и женщин. 
+</p>
+
+
+<div>
+<iframe title="Расовая принадлежность совершивших преступление и пострадавших" aria-label="chart" id="datawrapper-chart-4xRLx" src="https://datawrapper.dwcdn.net/4xRLx/2/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="312"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+
+
+
+<iframe title="Выбор оружия совершивших преступление мужчин и женщин" aria-label="Grouped Bars" id="datawrapper-chart-tyC7H" src="https://datawrapper.dwcdn.net/tyC7H/4/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="415"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+
+
+
+<iframe title="Связь между пострадавшими и совершившими преступление" aria-label="chart" id="datawrapper-chart-RgPTC" src="https://datawrapper.dwcdn.net/RgPTC/1/" scrolling="no" frameborder="0" style="width: 0; min-width: 100% !important; border: none;" height="415"></iframe><script type="text/javascript">!function(){"use strict";window.addEventListener("message",(function(a){if(void 0!==a.data["datawrapper-height"])for(var e in a.data["datawrapper-height"]){var t=document.getElementById("datawrapper-chart-"+e)||document.querySelector("iframe[src*='"+e+"']");t&&(t.style.height=a.data["datawrapper-height"][e]+"px")}}))}();
+</script>
+</div>
+
+
+<h1>Вывод</h1>
+<p> Данный датасет содержит огромное количество данных, интересных для изучения и определения повадок идущих на преступление, а также различных стереотипов касательно преступников. Выше мы разобрали только некоторые из них, однако более глубоко изучение этих данных поможет получше разобраться в ситуации.
+	
+</p>
+
+
+</body>
+</html>
