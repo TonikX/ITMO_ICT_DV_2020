@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>tri</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/d3-scale-radial.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter" align="left">
+    <a href="odin.html">Диаграмма 1</a>
+    <a href="dva.html">Диаграмма 2</a>
+    <a href="tri.html">Диаграмма 3</a>
+    <a href="chetire.html">Диаграмма 4</a>
+    <a href="pyat.html">Диаграмма 5</a><br><br>
+</div>
+
+<div class="containter" id="my_dataviz" align="center">
+    <h1>Диаграмма 3</h1>
+
+
+<div align="left">
+    <h2>Количество преступлений по месяцам</h2>
+</div>
+
+<div align="middle">
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 10, right: 30, bottom: 40, left: 100},
+    width = 1000 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Parse the Data
+d3.csv("https://raw.githubusercontent.com/esnogram/csv/master/month.csv", function(data) {
+
+
+// Add X axis
+var x = d3.scaleLinear()
+  .domain([0, 70000])
+  .range([ 0, width]);
+svg.append("g")
+  .attr("transform", "translate(0," + height + ")")
+  .call(d3.axisBottom(x))
+  .selectAll("text")
+    .attr("transform", "translate(-10,0)rotate(-45)")
+    .style("text-anchor", "end");
+
+// Y axis
+var y = d3.scaleBand()
+  .range([ 0, height ])
+  .domain(data.map(function(d) { return d.Month; }))
+  .padding(1);
+svg.append("g")
+  .call(d3.axisLeft(y))
+
+
+// Lines
+svg.selectAll("myline")
+  .data(data)
+  .enter()
+  .append("line")
+    .attr("x1", x(0))
+    .attr("x2", x(0))
+    .attr("y1", function(d) { return y(d.Month); })
+    .attr("y2", function(d) { return y(d.Month); })
+    .attr("stroke", "grey")
+
+// Circles -> start at X=0
+svg.selectAll("mycircle")
+  .data(data)
+  .enter()
+  .append("circle")
+    .attr("cx", x(0) )
+    .attr("cy", function(d) { return y(d.Month); })
+    .attr("r", "7")
+    .style("fill", "#69b3a2")
+    .attr("stroke", "black")
+
+// Change the X coordinates of line and circle
+svg.selectAll("circle")
+  .transition()
+  .duration(2000)
+  .attr("cx", function(d) { return x(d.Cases); })
+
+svg.selectAll("line")
+  .transition()
+  .duration(2000)
+  .attr("x1", function(d) { return x(d.Cases); })
+
+})
+
+
+
+</script>
+</div>
+</div>
+
+
+
+</body>
+</html>
