@@ -1,5 +1,5 @@
-var margin = {top: 10, right: 30, bottom: 30, left: 60},
-    width = 460 - margin.left - margin.right,
+var margin = {top: 10, right: 30, bottom: 40, left: 60},
+    width = 1060 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
 
 var svg = d3.select("#my_dataviz")
@@ -27,7 +27,7 @@ d3.csv("data/median_price.csv",
       svg.append("text")             
       .attr("transform",
             "translate(" + (width/2) + " ," + 
-                            (height + margin.top + 20) + ")")
+                            (height + margin.top + 22) + ")")
       .style("text-anchor", "middle")
       .text("Years");
 
