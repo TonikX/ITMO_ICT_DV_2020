@@ -51,6 +51,8 @@ svg.append("g")
 var y = d3.scaleLinear()
   .domain([0, 260000000])
   .range([ height, 0]);
+
+
 svg.append("g")
   .call(d3.axisLeft(y));
 
@@ -75,8 +77,8 @@ var mouseover = function(d) {
 var mousemove = function(d) {
   Tooltip
     .html("Owners: " + nFormatter(d.owners))
-    .style("left", (d3.mouse(this)[0]+70) + "px")
-    .style("top", (d3.mouse(this)[1]) + "px")
+    .style("left", (d3.mouse(this)[0]+210) + "px")
+    .style("top", (d3.mouse(this)[1]+50) + "px")
 }
 var mouseleave = function(d) {
   Tooltip
