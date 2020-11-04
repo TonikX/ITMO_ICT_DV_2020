@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1024px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – "The NSE"</h1>
+
+    <ul>
+        <li>Pie chart</li>
+        <li><a href="bar-chart.html">Bar chart</a></li>
+        <li><a href="bar-chart2.html">Bar chart 2</a></li>
+        <li><a href="bar-chart3.html">Bar chart 3</a></li>
+        <li><a href="line-chart.html">Line chart</a></li>
+    </ul>
+
+    <p>
+        Круговые диаграммы идеально подходят для того, чтобы быстро сформировать представление о пропорциональном распределении данных.
+    </p>
+    <p>
+        Источник: <a href="https://datavizcatalogue.com/RU/metody/linejnyj_grafik.html" target="_blank">Каталог
+        Визуализации
+        Данных</a>
+    </p>
+
+    <h2>Диаграмма</h2>
+    <svg width="500" height="500"></svg>
+<script>
+
+    let svg = d3.select("svg"),
+        width = svg.attr("width"),
+        height = svg.attr("height"),
+        radius = Math.min(width, height) / 2;
+
+    let g = svg.append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    let color = d3.scaleOrdinal(['#eac0c0','#b37652','#ef5454','#f5db7b','#7b99f5']);
+
+    let pie = d3.pie().value(function(d) {
+        return d.Percent;
+    });
+
+    let path = d3.arc()
+        .outerRadius(radius)
+        .innerRadius(0);
+
+    let label = d3.arc()
+        .outerRadius(radius)
+        .innerRadius(radius-80);
+
+    d3.csv("depression5.csv", function(error, data) {
+        let arc = g.selectAll(".arc")
+            .data(pie(data))
+            .enter().append("g")
+
+            .attr("class", "arc");
+        arc.append("path")
+            .attr("d", path)
+            .attr("fill", function(d) { return color(d.data.Strata_Name); });
+
+        console.log(arc)
+
+        arc.append("text")
+            .attr("transform", function(d) {
+                return "translate(" + label.centroid(d) + ")";
+            })
+            .text(function(d) { return d.data.Strata_Name; });
+
+        const tooltip = svg.append("g").attr("class", "tooltip").style("display", "none");
+        tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+        tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "12px").attr("font-weight", "bold");
+    });
+
+
+</script>
+    <p>
+        Описание: Диаграмма показывает у какой расы чаще диагностируют депрессию в процентном соотношении.
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+    let svg = d3.select("svg"),
+        width = svg.attr("width"),
+        height = svg.attr("height"),
+        radius = Math.min(width, height) / 2;
+
+    let g = svg.append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    let color = d3.scaleOrdinal(['#eac0c0','#b37652','#ef5454','#f5db7b','#7b99f5']);
+
+    let pie = d3.pie().value(function(d) {
+        return d.Percent;
+    });
+
+    let path = d3.arc()
+        .outerRadius(radius)
+        .innerRadius(0);
+
+    let label = d3.arc()
+        .outerRadius(radius)
+        .innerRadius(radius-80);
+
+    d3.csv("depression5.csv", function(error, data) {
+        let arc = g.selectAll(".arc")
+            .data(pie(data))
+            .enter().append("g")
+
+            .attr("class", "arc");
+        arc.append("path")
+            .attr("d", path)
+            .attr("fill", function(d) { return color(d.data.Strata_Name); });
+
+        console.log(arc)
+
+        arc.append("text")
+            .attr("transform", function(d) {
+                return "translate(" + label.centroid(d) + ")";
+            })
+            .text(function(d) { return d.data.Strata_Name; });
+
+        const tooltip = svg.append("g").attr("class", "tooltip").style("display", "none");
+        tooltip.append("rect").attr("width", 30).attr("height", 20).attr("fill", "white").style("opacity", 0.5);
+        tooltip.append("text").attr("x", 15).attr("dy", "1.2em").style("text-anchor", "middle").attr("font-size", "12px").attr("font-weight", "bold");
+    });
+    </code></pre>
+
+</div>
+</body>
+</html>
