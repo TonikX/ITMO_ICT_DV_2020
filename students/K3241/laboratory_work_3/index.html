@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Статистика</title>
+	  <style type="text/css">
+   
+   body{
+   margin-left: 25%;
+   margin-right: 25%;
+   }
+   .chart {
+    font-family: Roboto,sans-serif;
+    color: #181818;
+    font-size: 14px;
+    height: 100%;
+}
+  </style> 
+</head>
+<body>
+<!--1-->
+<h1>Анализ данных.</h1>
+<p class="chart">В связи с тем что у нас появился дисцеплина: "Моделирование и визуализация данных", моей задачей стала, как не странно,
+предобработака и визуализация некоторого датасета, поискав на сайте <a href="https://www.kaggle.com/">kaggle.com</a> популярные датасеты,
+наткнулся на <a href="https://www.kaggle.com/russellyates88/suicide-rates-overview-1985-to-2016">данный датасет</a>. Мне стала интереса 
+тема суицидов, хотелось бы изучить отрасоль самоубийств и может быть сделать какие нибудь выводы для самого себя. Немного предобработав данные, 
+ первое что пришло в голову, это посмотреть склько всего было самоубийств за опреденный год. 
+</p>
+</br>
+<iframe title="Статистика суицидов по годам" aria-label="Interactive line chart" id="datawrapper-chart-zWc3o"
+        src="https://datawrapper.dwcdn.net/zWc3o/1/" scrolling="no" frameborder="0"
+        style="width: 0; min-width: 100% !important; border: none;" height="400"></iframe>
+<script type="text/javascript">!function () {
+    "use strict";
+    window.addEventListener("message", (function (a) {
+        if (void 0 !== a.data["datawrapper-height"]) for (var e in a.data["datawrapper-height"]) {
+            var t = document.getElementById("datawrapper-chart-" + e) || document.querySelector("iframe[src*='" + e + "']");
+            t && (t.style.height = a.data["datawrapper-height"][e] + "px")
+        }
+    }))
+}();
+</script>
+
+<!--2-->
+<p class="chart">Так, же хотелось бы посмотреть, кто больше совершал суицидов: мужчины или женщины.</p>
+</br>
+<iframe title="Мужчины и женщины" aria-label="chart" id="datawrapper-chart-NAOOw"
+        src="https://datawrapper.dwcdn.net/NAOOw/1/" scrolling="no" frameborder="0"
+        style="width: 0; min-width: 100% !important; border: none;" height="606"></iframe>
+<script type="text/javascript">!function () {
+    "use strict";
+    window.addEventListener("message", (function (a) {
+        if (void 0 !== a.data["datawrapper-height"]) for (var e in a.data["datawrapper-height"]) {
+            var t = document.getElementById("datawrapper-chart-" + e) || document.querySelector("iframe[src*='" + e + "']");
+            t && (t.style.height = a.data["datawrapper-height"][e] + "px")
+        }
+    }))
+}();
+</script>
+
+<!--3-->
+<p class="chart">Так, же хотелось бы посмотреть, кто больше совершал суицидов по поколениям людей.</p>
+</br>
+<iframe title="Статистика суицидов по поколениям." aria-label="chart" id="datawrapper-chart-pzure"
+        src="https://datawrapper.dwcdn.net/pzure/2/" scrolling="no" frameborder="0"
+        style="width: 0; min-width: 100% !important; border: none;" height="400"></iframe>
+<script type="text/javascript">!function () {
+    "use strict";
+    window.addEventListener("message", (function (a) {
+        if (void 0 !== a.data["datawrapper-height"]) for (var e in a.data["datawrapper-height"]) {
+            var t = document.getElementById("datawrapper-chart-" + e) || document.querySelector("iframe[src*='" + e + "']");
+            t && (t.style.height = a.data["datawrapper-height"][e] + "px")
+        }
+    }))
+}();
+</script>
+<p class="chart">Проанализировав все графики, самой большой для меня неожиданностью стало то, что Россия, находиться на первом месте по самоубийствам. 
+Отсальные результаты в полне очевидны. График по всем суицидам в каждой стране приведён ниже.
+</p>
+<!--4-->
+</br>
+<iframe title="Статистика суицидов по всем странам" aria-label="Bar Chart" id="datawrapper-chart-cbs24"
+        src="https://datawrapper.dwcdn.net/cbs24/2/" scrolling="no" frameborder="0"
+        style="width: 0; min-width: 100% !important; border: none;" height="3252"></iframe>
+<script type="text/javascript">!function () {
+    "use strict";
+    window.addEventListener("message", (function (a) {
+        if (void 0 !== a.data["datawrapper-height"]) for (var e in a.data["datawrapper-height"]) {
+            var t = document.getElementById("datawrapper-chart-" + e) || document.querySelector("iframe[src*='" + e + "']");
+            t && (t.style.height = a.data["datawrapper-height"][e] + "px")
+        }
+    }))
+}();
+</script>
+
+</body>
+</html>
