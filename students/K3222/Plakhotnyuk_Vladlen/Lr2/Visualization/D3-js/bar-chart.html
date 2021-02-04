@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>KickStarter Projects</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>Проекты с площадки KickStarter</h1>
+
+    <ul>
+        <li><a href="dendrogram.html">Dendrogram</a></li>
+        <li>Bar chart</li>
+        <li><a href="treemap-chart.html">Treemap chart</a></li>
+        <li><a href="lolipop-chart.html">Lolipop chart</a></li>
+        <li><a href="pie-chart.html">Pie chart</a></li>
+    </ul>
+
+    <h2>Диаграмма</h2>
+    <p>
+    Показывает категории проектов по их статусам:
+    </p>
+    <div id="my_dataviz"></div>
+    <script type="text/javascript">
+        var margin = {top: 10, right: 100, bottom: 20, left: 50},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#my_dataviz")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("data/category_state.csv", function(data) {
+
+            // List of subgroups = header of the csv files = soil condition here
+            var subgroups = data.columns.slice(1)
+
+            // List of groups = species here = value of the first column called group -> I show them on the X axis
+            var groups = d3.map(data, function(d){return(d.group)}).keys()
+
+            // Add X axis
+            var x = d3.scaleBand()
+                .domain(groups)
+                .range([0, width])
+                .padding([0])
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x).tickSizeOuter(0));
+
+            // Add Y axis
+            var y = d3.scaleLinear()
+                .domain([0, 65000])
+                .range([ height, 0 ]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // color palette = one color per subgroup
+            var color = d3.scaleOrdinal()
+                .domain(subgroups)
+                .range(d3.schemeSet2);
+
+            //stack the data? --> stack per subgroup
+            var stackedData = d3.stack()
+                .keys(subgroups)
+                (data)
+
+            // What happens when user hover a bar
+            var mouseover = function(d) {
+                // what subgroup are we hovering?
+                var subgroupName = d3.select(this.parentNode).datum().key; // This was the tricky part
+                var subgroupValue = d.data[subgroupName];
+                // Reduce opacity of all rect to 0.2
+                d3.selectAll(".myRect").style("opacity", 0.2)
+                // Highlight all rects of this subgroup with opacity 0.8. It is possible to select them since they have a specific class = their name.
+                d3.selectAll("."+subgroupName)
+                    .style("opacity", 1)
+            }
+
+            // When user do not hover anymore
+            var mouseleave = function(d) {
+                // Back to normal opacity: 0.8
+                d3.selectAll(".myRect")
+                    .style("opacity",0.8)
+            }
+
+            const colors = ["#fda481", "#85ceb7", "#a4b3d5", "#eca1cf", "#b8e076", "#ffe159"];
+            const labels = ["Failed", "Successful", "Canceled", "Undefined", "Live", "Suspended"];
+
+            // Show the bars
+            svg.append("g")
+                .selectAll("g")
+                // Enter in the stack data = loop key per key = group per group
+                .data(stackedData)
+                .enter().append("g")
+                //.attr("fill", function(d) { return color(d.key); })
+                .attr("fill", function(d,i) { return colors.slice()[i]; })
+                .attr("class", function(d){ return "myRect " + d.key }) // Add a class to each subgroup: their name
+                .selectAll("rect")
+                // enter a second time = loop subgroup per subgroup to add all rectangles
+                .data(function(d) { return d; })
+                .enter().append("rect")
+                .attr("x", function(d) { return x(d.data.group); })
+                .attr("y", function(d) { return y(d[1]); })
+                .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+                .attr("width",x.bandwidth())
+                .attr("stroke", "grey")
+                .on("mouseover", mouseover)
+                .on("mouseleave", mouseleave)
+
+            const legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function (d, i) {
+                    return "translate(30," + i * 19 + ")";
+                });
+
+            legend.append("rect").attr("x", width - 18).attr("width", 18).attr("height", 18).style("fill", function (d, i) {
+                return colors.slice().reverse()[i];
+            });
+
+            legend.append("text").attr("x", width + 5).attr("y", 9).attr("dy", ".35em").style("text-anchor", "start").text(function (d, i) {
+                return labels.slice().reverse()[i];
+            });
+        })
+
+    </script>
+</div>
+</body>
+</html>
