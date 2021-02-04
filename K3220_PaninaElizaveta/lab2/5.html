@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Вышка и алкоголь</title>
+    <link rel="shortcut icon" href="https://image.flaticon.com/icons/png/512/31/31170.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+        p {
+            text-align: justify;
+        }
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+
+        svg {
+            margin-left: 26%;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample10" aria-controls="navbarsExample10" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-md-center" id="navbarsExample10">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="line-chart.html">Успеваемость от СП</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="bar-chart.html">ДеревняVSГород</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="3.html">Прогулы и оценки</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="4.html">Дети, алкоголь, семья</a>
+            </li>
+            <li class="nav-item  active">
+                <a class="nav-link" href="#">Вышка и алкоголь<span class="sr-only">(current)</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="containter">
+    <h1 style="font-size: 40px;">Алкоголь и "вышка"</h1>
+    <h2></h2>
+    <script type="text/javascript">
+        var height = 500,
+            width = 500,
+            margin= 45;
+        d3.csv('data/data.csv', function (data) {
+            var nested = d3.nest()
+                .key(function (d) { return d.higher; })
+                .entries(data);
+            nested[0].key = "Хотят высшее образование";
+            nested[1].key = "Да зачем оно мне надо";
+
+            for (var elem in nested) {
+                var s = 0, k = nested[elem].values.length;
+                for (var ind in nested[elem].values) {
+                    s += parseInt(nested[elem].values[ind].Walc);
+                }
+                nested[elem].values = s / k;
+            }
+
+            console.log(nested);
+
+            // функция для получения цветов
+            var color = ["lavender", "#6495ed"];
+
+// задаем радиус
+            var radius = Math.min(width - 2*margin, height- 2*margin) / 2;
+
+// создаем элемент арки с радиусом
+            var arc = d3.svg.arc()
+                .outerRadius(radius)
+                .innerRadius(0);
+
+            var pie = d3.layout.pie()
+                .sort(null)
+                .value(function(d) { return d.values; });
+
+            var svg = d3.select("h2").append("svg")
+                .attr("class", "axis")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform",
+                    "translate(" +(width / 2) + "," + (height / 2 ) + ")");
+            var g = svg.selectAll(".arc")
+                .data(pie(nested))
+                .enter().append("g")
+                .attr("class", "arc");
+
+            g.append("path")
+                .attr("d", arc)
+                .style("fill", function(d,i) { return color[i]; });
+
+            g.append("text")
+                .attr("transform", function(d) {
+                    return "translate(" + arc.centroid(d) + ")"; })
+                .style("text-anchor", "middle")
+                .text(function(d) { return d.data.values.toFixed(2); })
+                .attr("font-weight", "bold");
+
+            var legendTable = d3.select("svg").append("g")
+                .attr("transform", "translate(0, "+margin+")")
+                .attr("class", "legendTable");
+
+            var legend = legendTable.selectAll(".legend")
+                .data(pie(nested))
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(0, " + (i * 20 - 16) + ")";
+                })
+                .attr("border", "1px solid black");
+
+            legend.append("rect")
+                .attr("x", width - 10)
+                .attr("y", 4)
+                .attr("width", 10)
+                .attr("height", 10)
+                .style("fill", function(d, i) { return color[i]; });
+
+            legend.append("text")
+                .attr("x", width - 14)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function(d) { return d.data.key; });
+        })
+    </script>
+    <div style = "margin-top: -30px;">
+    <h2>Описание диаграммы</h2>
+    <hr>
+    <p>
+        Для пояснения: цифры на диаграмме - средняя оценка того, сколько выпивает ребёнок (1 - почти не пьёт,
+        5 - пьёт кадый день и много). По диаграмме можно сделать вполне логичный вывод - дети, которые хотят
+        получить высшее образование пьют меньше, а значит больше заняты другими делами. С другой стороны, дети,
+        которым вышка не нужна, пьют намного (для средней статистики 0.5 балла - это много) больше, т.е. они
+        меньше чем-то увлечены и почти ничего не делают (либо не умеют).
+    </p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>D3.js — samples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter">
+    <h1>D3.js – samples (COVID-19 в России)</h1>
+
+    <ul>
+        <li>Line chart</li>
+        <li><a href="bar-chart.html">Bar chart</a></li>
+    </ul>
+
+    <p>
+        Линейные графики используются для отображения количественных показателей за непрерывный интервал или
+        определенный период времени.
+    </p>
+    <p>
+        Источник: <a href="https://datavizcatalogue.com/RU/metody/linejnyj_grafik.html" target="_blank">Каталог
+        Визуализации
+        Данных</a>
+    </p>
+
+    <h2>Диаграмма</h2>
+
+    <script type="text/javascript">
+        const parseDate = d3.time.format("%Y-%m-%d").parse;
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const xNudge = 50, yNudge = 20;
+        let max = 0;
+        let minDate = new Date(), maxDate = new Date();
+        let preTotal = 0;
+
+        d3.csv("data/covid.csv")
+            .row(function (d) {
+                return {
+                    day: parseDate(d.day),
+                    price: preTotal += Number(d.cases),
+                };
+            })
+            .get(function (error, rows) {
+                console.log(rows);
+
+                max = d3.max(rows, function (d) {
+                    return d.price;
+                });
+                minDate = d3.min(rows, function (d) {
+                    return d.day;
+                });
+                maxDate = d3.max(rows, function (d) {
+                    return d.day;
+                });
+
+                const y = d3.scale.linear().domain([0, max]).range([height, 0]);
+                const x = d3.time.scale().domain([minDate, maxDate]).range([0, width]);
+
+                const yAxis = d3.svg.axis().orient("left").scale(y);
+                const xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format("%d %B"));
+
+                let line = d3.svg.line().x(function (d) {
+                    return x(d.day);
+                }).y(function (d) {
+                    return y(d.price);
+                }).interpolate("cardinal");
+
+                const svg = d3.select("h2").append("div").attr("class", "svg-containter").append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+                let chartGroup = svg.append("g").attr("class", "chartGroup").attr("transform", "translate(" + xNudge + "," + yNudge + ")");
+
+                chartGroup.append("path").attr("class", "line").attr("d", function (d) {
+                    return line(rows);
+                });
+                chartGroup.append("g").attr("class", "axis x").attr("transform", "translate(0," + height + ")").call(xAxis);
+                chartGroup.append("g").attr("class", "axis y").call(yAxis);
+            });
+    </script>
+
+    <p>
+        Описание: диаграмма показывает...
+    </p>
+    <h2>Код</h2>
+
+    <pre><code>
+        const parseDate = d3.time.format("%Y-%m-%d").parse;
+        const margin = {top: 20, right: 160, bottom: 35, left: 30};
+        const width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
+        const xNudge = 50, yNudge = 20;
+        let max = 0;
+        let minDate = new Date(), maxDate = new Date();
+        let preTotal = 0;
+
+        d3.csv("data/covid.csv")
+            .row(function (d) {
+                return {
+                    day: parseDate(d.day),
+                    price: preTotal += Number(d.cases),
+                };
+            })
+            .get(function (error, rows) {
+                console.log(rows);
+
+                max = d3.max(rows, function (d) {
+                    return d.price;
+                });
+                minDate = d3.min(rows, function (d) {
+                    return d.day;
+                });
+                maxDate = d3.max(rows, function (d) {
+                    return d.day;
+                });
+
+                const y = d3.scale.linear().domain([0, max]).range([height, 0]);
+                const x = d3.time.scale().domain([minDate, maxDate]).range([0, width]);
+
+                const yAxis = d3.svg.axis().orient("left").scale(y);
+                const xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format("%d %B"));
+
+                let line = d3.svg.line().x(function (d) {
+                    return x(d.day);
+                }).y(function (d) {
+                    return y(d.price);
+                }).interpolate("cardinal");
+
+                const svg = d3.select("h2").append("div").attr("class", "svg-containter").append("svg").attr("height", "100%").attr("width", width + margin.left + margin.right);
+
+                let chartGroup = svg.append("g").attr("class", "chartGroup").attr("transform", "translate(" + xNudge + "," + yNudge + ")");
+
+                chartGroup.append("path").attr("class", "line").attr("d", function (d) {
+                    return line(rows);
+                });
+                chartGroup.append("g").attr("class", "axis x").attr("transform", "translate(0," + height + ")").call(xAxis);
+                chartGroup.append("g").attr("class", "axis y").call(yAxis);
+            });
+    </code></pre>
+
+</div>
+</body>
+</html>

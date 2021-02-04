@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Успеваемость и родители</title>
+    <link rel="shortcut icon" href="https://image.flaticon.com/icons/png/512/31/31170.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        path.line {
+            fill: none;
+            stroke: #ff9044;
+            stroke-width: 3px;
+        }
+        p {
+            text-align: justify;
+        }
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+
+        svg {
+            margin-left: 33%;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample10" aria-controls="navbarsExample10" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-md-center" id="navbarsExample10">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Успеваемость от СП<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="bar-chart.html">ДеревняVSГород</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="3.html">Прогулы и оценки</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="4.html">Дети, алкоголь, семья</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="5.html">Вышка и алкоголь</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="containter">
+    <h1 style="font-size: 40px;">Зависимость успеваемости детей от СП родителей</h1>
+    <h2></h2>
+    <script type="text/javascript">
+        d3.csv('data/data.csv', function (data) {
+            var height = 550,
+                width = 400,
+                margin= 40;
+
+            var pstat = [
+                {status: "Разведены", grade: []},
+                {status: "Вместе", grade: []},
+            ]
+
+            for (var elem in data) {
+                if (data[elem].Pstatus == "A") {
+                    pstat[0].grade.push(d3.mean([parseInt(data[elem].G1),
+                        parseInt(data[elem].G2),parseInt(data[elem].G3)]));
+                }
+                else {
+                    pstat[1].grade.push(d3.mean([parseInt(data[elem].G1),
+                        parseInt(data[elem].G2),parseInt(data[elem].G3)]));
+                }
+            }
+
+            for (var elem in pstat) {
+                pstat[elem].grade = d3.mean(pstat[elem].grade);
+            }
+
+            console.log(pstat);
+
+            // функция для получения цветов
+            var color = ["#138808", "#ffcc00"];
+
+// длина оси X= ширина контейнера svg - отступ слева и справа
+            var xAxisLength = width - 2 * margin;
+
+// длина оси Y = высота контейнера svg - отступ сверху и снизу
+            var yAxisLength = height - 2 * margin + 5;
+
+// функция интерполяции значений на ось X
+            var xScale = d3.scale.ordinal()
+                .rangeRoundBands([0, xAxisLength + margin], .1)
+                .domain(pstat.map(function(d) {return d.status; }));
+
+// функция интерполяции значений на ось Y
+            var yScale = d3.scale.linear()
+                .domain([0, 20]).range([yAxisLength, 0]);
+
+            var svg = d3.select("h2").append("svg")
+                .attr("class", "axis")
+                .attr("width", width)
+                .attr("height", height);
+
+// создаем ось X
+            var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom");
+// создаем ось Y
+            var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
+
+            var text = svg.selectAll("text")
+                .data(pstat)
+                .enter()
+                .append("text")
+                .text(function(d) {
+                    return (d.grade+1.5).toFixed(2);
+                })
+                .attr("y", function(d, i) {
+                    return height - (height -yScale(d.grade)) - 4;
+                })
+                .attr("x", function(d, i) {
+                    return (xScale.rangeBand() + 20) * i + 120;
+                })
+                .attr("font-weight", "bold")
+                .attr("text-align", "center");
+            // отрисовка оси Х
+            svg.append("g")
+                .attr("class", "x-axis")
+                .attr("transform",
+                    "translate(" + margin + "," + (height - margin + 15) + ")")
+                .call(xAxis);
+
+            // отрисовка оси Y
+            svg.append("g")
+                .attr("class", "y-axis")
+                .attr("transform",
+                    "translate(" + (margin+5) + "," + margin + ")")
+                .call(yAxis);
+
+// рисуем горизонтальные линии
+            d3.selectAll("g.y-axis g.tick")
+                .append("line")
+                .classed("grid-line", true)
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", xAxisLength + 50)
+                .attr("y2", 0);
+
+// создаем элемент g с набором столбиков
+            svg.append("g")
+                .attr("transform",  // сдвиг оси вправо
+                    "translate(" + margin + ", 0)")
+                .selectAll(".bar")
+                .data(pstat)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return xScale(d.status); })
+                .attr("width", xScale.rangeBand())
+                .attr("y", function(d) { return yScale(d.grade); })
+                .attr("height", function(d) { return height - yScale(d.grade) - 30; })
+                .attr("fill", function(d, i) { return color[i]; });
+        })
+    </script>
+    <h2>Описание диаграммы</h2>
+    <hr>
+    <p>
+        В виду небольшой разницы, которую можно сослать на выбросы, делаем вывод, что успеваемость ребёнка
+        не зависит от семейного положения родителей.
+    </p>
+</div>
+</body>
+</html>
