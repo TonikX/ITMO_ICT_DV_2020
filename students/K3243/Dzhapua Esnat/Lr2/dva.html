@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>dva</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter" align="left">
+    <a href="odin.html">Диаграмма 1</a>
+    <a href="dva.html">Диаграмма 2</a>
+    <a href="tri.html">Диаграмма 3</a>
+    <a href="chetire.html">Диаграмма 4</a>
+    <a href="pyat.html">Диаграмма 5</a><br><br>
+</div>
+
+<div class="containter" id="main" align="center">
+    <h1>Диаграмма 2</h1>
+
+
+
+
+<div align="left">
+    <h2>Количество раскрытых преступлений</h2>
+</div>
+
+<button onclick="update(data8089)">1980-1989</button>
+<button onclick="update(data9099)">1990-1999</button>
+<button onclick="update(data0009)">2000-2009</button>
+<button onclick="update(data1014)">2010-2014</button>
+
+<div id="my_dataviz"></div>
+
+
+
+<script>
+
+
+// set the dimensions and margins of the graph
+var width = 1000
+    height = 450
+    margin = 40
+
+// The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+var radius = Math.min(width, height) / 2 - margin
+
+// append the svg object to the div called 'my_dataviz'
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+// create 2 data_set
+
+var data8089 = {"Yes1": 144823, "No1": 53708}
+var data9099 = {"Yes2": 139621, "No2": 64280}
+var data0009 = {"Yes3": 111999, "No3": 50337}
+var data1014 = {"Yes4": 51729, "No4": 21957}
+
+
+
+// A function that create / update the plot for a given variable:
+function update(data) {
+
+  // Compute the position of each group on the pie:
+  var pie = d3.pie()
+    .value(function(d) {return d.value; })
+    .sort(function(a, b) { console.log(a) ; return d3.ascending(a.key, b.key);} ) // This make sure that group order remains the same in the pie chart
+  var data_ready = pie(d3.entries(data))
+
+  var arcGenerator = d3.arc()
+      .innerRadius(0)
+      .outerRadius(radius)
+
+  // map to data
+  var u = svg.selectAll("path")
+    .data(data_ready)
+
+// set the color scale
+  var color = d3.scaleOrdinal()
+    .domain([data])
+    .range(["#aa1017", "#08306b"])
+
+
+  // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+  u
+    .enter()
+    .append('path')
+    .merge(u)
+    .transition()
+    .duration(1000)
+    .attr('d', d3.arc()
+      .innerRadius(0)
+      .outerRadius(radius)
+    )
+    .attr('fill', function(d){ return(color(d.data.key)) })
+    .attr("stroke", "white")
+    .style("stroke-width", "2px")
+    .style("opacity", 1)
+
+
+var keys = ["Раскрыто","Не раскрыто"]
+
+var size = 20
+u
+  .data(keys)
+  .enter()
+  .append("rect")
+    .attr("y", -150)
+    .attr("x", function(d,i){ return +300 + i*(size+100)}) // 100 is where the first dot appears. 25 is the distance between dots
+    .attr("width", size)
+    .attr("height", size)
+    .style("fill", function(d){ return color(d)})
+
+u
+  .data(keys)
+  .enter()
+  .append("text")
+    .attr("y", -140 + size*1.2)
+    .attr("x", function(d,i){ return +265 + i*(size+95) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
+    .style("fill", function(d){ return color(d)})
+    .text(function(d){ return d})
+    .attr("text-anchor", "left")
+    .style("alignment-baseline", "middle")
+    .style("font-size", 15)
+
+
+
+
+
+  // remove the group that is not present anymore
+  u
+    .exit()
+    .remove()
+
+
+
+
+
+}
+
+// Initialize the plot with the first dataset
+update(data8089)
+
+
+svg.append("text").attr("x", 195).attr("y", -90).text("1980-1989 : 144823").style("font-size", "15px").style('fill', '#08306b').attr("alignment-baseline","middle")
+svg.append("text").attr("x", 410).attr("y", -90).text(" 53708").style("font-size", "15px").style('fill', '#aa1017').attr("alignment-baseline","middle")
+
+svg.append("text").attr("x", 195).attr("y", -70).text("1990-1999 : 139621").style("font-size", "15px").style('fill', '#08306b').attr("alignment-baseline","middle")
+svg.append("text").attr("x", 410).attr("y", -70).text("64280").style("font-size", "15px").style('fill', '#aa1017').attr("alignment-baseline","middle")
+
+svg.append("text").attr("x", 195).attr("y", -50).text("2000-2009 : 111999").style("font-size", "15px").style('fill', '#08306b').attr("alignment-baseline","middle")
+svg.append("text").attr("x", 410).attr("y", -50).text("50337").style("font-size", "15px").style('fill', '#aa1017').attr("alignment-baseline","middle")
+
+svg.append("text").attr("x", 195).attr("y", -30).text("2010-2014 : 51729").style("font-size", "15px").style('fill', '#08306b').attr("alignment-baseline","middle")
+svg.append("text").attr("x", 410).attr("y", -30).text("21957").style("font-size", "15px").style('fill', '#aa1017').attr("alignment-baseline","middle")
+
+
+
+
+</script>
+</div>
+</body>
+</html>

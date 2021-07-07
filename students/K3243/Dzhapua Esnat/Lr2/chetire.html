@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>chetire</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/kube/6.5.2/css/kube.css">
+    <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+    <style type="text/css">
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+
+        .focus circle {
+            fill: none;
+            stroke: steelblue;
+        }
+
+        .containter {
+            margin: auto;
+            max-width: 1128px;
+        }
+
+        .svg-containter {
+            margin: 20px auto;
+            max-width: 1128px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="containter" align="left">
+    <a href="odin.html">Диаграмма 1</a>
+    <a href="dva.html">Диаграмма 2</a>
+    <a href="tri.html">Диаграмма 3</a>
+    <a href="chetire.html">Диаграмма 4</a>
+    <a href="pyat.html">Диаграмма 5</a><br><br>
+</div>
+
+<div class="containter" id="main" align="center">
+    <h1>Диаграмма 4</h1>
+
+
+
+
+<div align="left">
+    <h2>Выбор оружия преступления</h2>
+</div>
+
+<svg id="main" width="100" height="100"></svg>
+
+<script>
+
+// set the dimensions and margins of the graph
+var width = 700
+    height = 600
+    margin = 50
+
+// The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+var radius = Math.min(width, height) / 2 - margin
+
+// append the svg object to the div called 'my_dataviz'
+var svg = d3.select("#main")
+  .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+// Create dummy data
+var data = {BluntObject:67337,
+  Firearm:46980,
+  Handgun:317484,
+  Knife:94962,
+  Rifle:23347,
+  Shotgun:30722,
+  Strangulation:8110,
+  Suffocation:3968}
+
+// set the color scale
+var color = d3.scaleOrdinal()
+  .domain(["Blunt Object",
+    "Firearm",
+    "Handgun",
+    "Knife",
+    "Rifle",
+    "Shotgun",
+    "Strangulation",
+    "Suffocation"])
+  .range(["gold", "blue", "green", "orange", "black", "grey", "darkgreen", "brown"])
+
+
+// Compute the position of each group on the pie:
+var pie = d3.pie()
+  .sort(null) // Do not sort group by size
+  .value(function(d) {return d.value; })
+var data_ready = pie(d3.entries(data))
+
+// The arc generator
+var arc = d3.arc()
+  .innerRadius(radius * 0.4)         // This is the size of the donut hole
+  .outerRadius(radius * 0.8)
+
+// Another arc that won't be drawn. Just for labels positioning
+var outerArc = d3.arc()
+  .innerRadius(radius * 0.9)
+  .outerRadius(radius * 0.9)
+
+
+// Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+svg
+  .selectAll('allSlices')
+  .data(data_ready)
+  .enter()
+  .append('path')
+  .attr('d', arc)
+  .attr('fill', function(d){ return(color(d.data.key)) })
+  .attr("stroke", "white")
+  .style("stroke-width", "2px")
+  .style("opacity", 1)
+
+// Add the polylines between chart and labels:
+svg
+  .selectAll('allPolylines')
+  .data(data_ready)
+  .enter()
+  .append('polyline')
+    .attr("stroke", "black")
+    .style("fill", "none")
+    .attr("stroke-width", 1)
+    .attr('points', function(d) {
+      var posA = arc.centroid(d) // line insertion in the slice
+      var posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
+      var posC = outerArc.centroid(d); // Label position = almost the same as posB
+      var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 // we need the angle to see if the X position will be at the extreme right or extreme left
+      posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+      return [posA, posB, posC]
+    })
+
+// Add the polylines between chart and labels:
+svg
+  .selectAll('allLabels')
+  .data(data_ready)
+  .enter()
+  .append('text')
+    .text( function(d) { console.log(d.data.key) ; return d.data.key } )
+    .attr('transform', function(d) {
+        var pos = outerArc.centroid(d);
+        var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+        pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
+        return 'translate(' + pos + ')';
+    })
+    .style('text-anchor', function(d) {
+        var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+        return (midangle < Math.PI ? 'start' : 'end')
+    })
+
+
+svg.append("circle").attr("cx",250).attr("cy",40).attr("r", 6).style("fill", "gold")
+svg.append("circle").attr("cx",250).attr("cy",60).attr("r", 6).style("fill", "blue")
+svg.append("circle").attr("cx",250).attr("cy",0).attr("r", 6).style("fill", "green")
+svg.append("circle").attr("cx",250).attr("cy",20).attr("r", 6).style("fill", "orange")
+svg.append("circle").attr("cx",250).attr("cy",100).attr("r", 6).style("fill", "black")
+svg.append("circle").attr("cx",250).attr("cy",80).attr("r", 6).style("fill", "grey")
+svg.append("circle").attr("cx",250).attr("cy",120).attr("r", 6).style("fill", "darkgreen")
+svg.append("circle").attr("cx",250).attr("cy",140).attr("r", 6).style("fill", "brown")
+
+svg.append("text").attr("x", 260).attr("y", 40).text("Blunt Object : 67337").style("font-size", "10px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 260).attr("y", 60).text("Firearm : 46980").style("font-size", "10px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 260).attr("y", 0).text("Handgun : 317484").style("font-size", "10px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 260).attr("y", 20).text("Knife : 94962").style("font-size", "10px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 260).attr("y", 100).text("Rifle : 23347").style("font-size", "10px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 260).attr("y", 80).text("Shotgun : 30722").style("font-size", "10px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 260).attr("y", 120).text("Strangulation : 8110").style("font-size", "10px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 260).attr("y", 140).text("Suffocation : 3968").style("font-size", "10px").attr("alignment-baseline","middle")
+</script>
+
+
+</script>
+</div>
+</body>
+</html>
